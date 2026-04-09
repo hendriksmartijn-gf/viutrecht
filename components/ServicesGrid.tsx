@@ -1,9 +1,11 @@
 import { urlFor } from '@/lib/sanity'
+import { PortableText } from '@portabletext/react'
 
 type Service = {
   _id: string
   title: string
-  description?: string
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  description?: any[]
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   image?: any
   slug: { current: string }
@@ -44,7 +46,9 @@ export default function ServicesGrid({ services }: Props) {
               <div className="p-6">
                 <h3 className="text-xl font-bold text-gray-900 mb-2">{service.title}</h3>
                 {service.description && (
-                  <p className="text-gray-500 text-sm">{service.description}</p>
+                  <div className="text-gray-500 text-sm">
+                    <PortableText value={service.description} />
+                  </div>
                 )}
               </div>
             </a>
