@@ -17,15 +17,17 @@ type Props = {
 
 export default function ServicesGrid({ services }: Props) {
   return (
-    <section className="bg-[#fdf8ee] py-20 px-6">
+    <section className="bg-[#060911] py-24 px-6">
       <div className="max-w-6xl mx-auto">
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
-          <h2 className="text-4xl font-bold text-[#10131c] max-w-md leading-tight"
-            style={{ fontFamily: 'var(--font-instrument-serif)', fontStyle: 'italic' }}>
-            From first-timers to seasoned pro&apos;s, we&apos;ve got you.
-          </h2>
-          <a href="/classes" className="text-sm font-semibold text-[#10131c] underline underline-offset-4 whitespace-nowrap">
-            Explore all classes
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-14 gap-4">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-widest text-[#8c7df8] mb-3">Wat we bieden</p>
+            <h2 className="text-4xl md:text-5xl font-black text-white leading-tight max-w-md">
+              Voor beginners én gevorderden.
+            </h2>
+          </div>
+          <a href="/classes" className="text-sm font-semibold text-[#8b94a8] hover:text-white transition-colors whitespace-nowrap">
+            Alle klassen bekijken →
           </a>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -33,9 +35,9 @@ export default function ServicesGrid({ services }: Props) {
             <a
               key={service._id}
               href={`/classes/${service.slug.current}`}
-              className="bg-[#ebe7dc] rounded-2xl overflow-hidden hover:scale-[1.02] transition duration-300 group"
+              className="group bg-[#10141f] rounded-2xl overflow-hidden border border-white/5 hover:border-[#8c7df8]/30 transition-all duration-300"
             >
-              {service.image && (
+              {service.image ? (
                 <div className="aspect-video overflow-hidden">
                   <img
                     src={urlFor(service.image).width(600).height(338).url()}
@@ -43,11 +45,19 @@ export default function ServicesGrid({ services }: Props) {
                     className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
                   />
                 </div>
+              ) : (
+                <div className="aspect-video bg-gradient-to-br from-[#8c7df8]/10 to-transparent flex items-center justify-center">
+                  <div className="w-14 h-14 rounded-full bg-[#8c7df8]/20 flex items-center justify-center">
+                    <svg className="w-7 h-7 text-[#8c7df8]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+                    </svg>
+                  </div>
+                </div>
               )}
               <div className="p-6">
-                <h3 className="text-xl font-bold text-[#10131c] mb-2">{service.title}</h3>
+                <h3 className="text-lg font-bold text-white mb-2">{service.title}</h3>
                 {service.description && (
-                  <div className="text-[#514941] text-sm leading-relaxed">
+                  <div className="text-sm text-[#8b94a8] leading-relaxed line-clamp-3">
                     <PortableText value={service.description} />
                   </div>
                 )}
