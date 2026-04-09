@@ -31,7 +31,7 @@ export default async function PageRoute({ params }: Props) {
   if (!page) notFound()
 
   const heroImageUrl = page.hero?.image
-    ? urlFor(page.hero.image).width(1400).height(600).url()
+    ? urlFor(page.hero.image).width(1400).height(600).auto('format').quality(80).url()
     : null
 
   return (
@@ -102,7 +102,7 @@ export default async function PageRoute({ params }: Props) {
               components={{
                 types: {
                   image: ({ value }) => {
-                    const url = urlFor(value).width(800).url()
+                    const url = urlFor(value).width(800).auto('format').quality(80).url()
                     return (
                       <img
                         src={url}

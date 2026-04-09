@@ -40,7 +40,7 @@ export default function ServicesGrid({ services }: Props) {
               {service.image ? (
                 <div className="aspect-video overflow-hidden">
                   <img
-                    src={urlFor(service.image).width(600).height(338).url()}
+                    src={urlFor(service.image).width(600).height(338).auto('format').quality(80).url()}
                     alt={service.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
                   />
