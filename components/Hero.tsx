@@ -6,9 +6,10 @@ type Props = {
   secondaryCtaLabel?: string
   secondaryCtaUrl?: string
   imageUrl?: string | null
+  googleReviews?: { rating?: number; count?: number; url?: string } | null
 }
 
-export default function Hero({ heading, subheading, ctaLabel, ctaUrl, secondaryCtaLabel, secondaryCtaUrl, imageUrl }: Props) {
+export default function Hero({ heading, subheading, ctaLabel, ctaUrl, secondaryCtaLabel, secondaryCtaUrl, imageUrl, googleReviews }: Props) {
   return (
     <section className="relative overflow-hidden min-h-[92vh] flex items-center bg-[#0a0e1a]">
       {/* Background image */}
@@ -62,6 +63,30 @@ export default function Hero({ heading, subheading, ctaLabel, ctaUrl, secondaryC
               </a>
             )}
           </div>
+
+          {googleReviews?.rating && (
+            <a
+              href={googleReviews.url ?? '#'}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-10 inline-flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-5 py-3 hover:bg-white/10 transition-colors"
+            >
+              <div className="flex items-center gap-0.5">
+                {[1,2,3,4,5].map((i) => (
+                  <svg key={i} className="w-4 h-4 text-[#FBBC04]" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                  </svg>
+                ))}
+              </div>
+              <div className="text-sm">
+                <span className="font-bold text-white">{googleReviews.rating}</span>
+                {googleReviews.count && (
+                  <span className="text-[#8b94a8] ml-1">({googleReviews.count} reviews)</span>
+                )}
+                <span className="text-[#8b94a8] ml-1">· Google</span>
+              </div>
+            </a>
+          )}
         </div>
       </div>
     </section>

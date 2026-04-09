@@ -41,6 +41,7 @@ export default async function HomePage() {
         secondaryCtaLabel="Book a drop-in"
         secondaryCtaUrl={settings?.bookingUrl ?? '#'}
         imageUrl={heroImageUrl}
+        googleReviews={settings?.googleReviews}
       />
 
       {settings?.stats?.length > 0 && <StatsBalk stats={settings.stats} />}
