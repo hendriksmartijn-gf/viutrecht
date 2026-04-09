@@ -19,7 +19,7 @@ export default async function Nav() {
   const settings: Settings = await client.fetch(
     `*[_type == "siteSettings"][0]{ siteName, navigation, bookingUrl, trialCtaLabel, trialCtaUrl }`,
     {},
-    { next: { revalidate: 3600 } }
+    { cache: 'no-store' }
   )
 
   const siteName = settings?.siteName ?? 'VI Utrecht'
