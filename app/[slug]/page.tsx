@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 import { PortableText } from '@portabletext/react'
-import { client, urlFor } from '@/lib/sanity'
+import { urlFor } from '@/lib/sanity'
+import { sanityFetch } from '@/lib/live'
 import type { Metadata } from 'next'
 
 type Props = {
@@ -16,7 +17,7 @@ const PAGE_QUERY = `*[_type == "page" && slug.current == $slug][0]{
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
-  const page = await client.fetch(PAGE_QUERY, { slug }, { next: { revalidate: 60 } })
+  const { data: page } = await sanityFetch({ query: PAGE_QUERY, params: { slug } })
   if (!page) return {}
   return {
     title: page.seo?.metaTitle ?? page.title,
@@ -26,7 +27,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function PageRoute({ params }: Props) {
   const { slug } = await params
-  const page = await client.fetch(PAGE_QUERY, { slug }, { next: { revalidate: 60 } })
+  const { data: page } = await sanityFetch({ query: PAGE_QUERY, params: { slug } })
 
   if (!page) notFound()
 
