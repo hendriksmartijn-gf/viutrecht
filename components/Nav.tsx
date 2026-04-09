@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { client } from '@/lib/sanity'
+import MobileNav from './MobileNav'
 
 type NavItem = {
   _key: string
@@ -29,11 +30,12 @@ export default async function Nav() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-white/5 bg-[#0a0e1a]/90 backdrop-blur-md">
-      <div className="mx-auto max-w-7xl px-6 flex h-16 items-center justify-between gap-8">
+      <div className="relative mx-auto max-w-7xl px-6 flex h-16 items-center justify-between gap-8">
         <Link href="/" className="font-black text-xl tracking-tight text-white shrink-0">
           {siteName}
         </Link>
 
+        {/* Desktop nav */}
         {navItems.length > 0 && (
           <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-[#8b94a8]">
             {navItems.map((item) => (
@@ -48,14 +50,18 @@ export default async function Nav() {
           </nav>
         )}
 
+        {/* Desktop CTA */}
         <a
           href={ctaUrl}
           target={ctaUrl.startsWith('http') ? '_blank' : undefined}
           rel={ctaUrl.startsWith('http') ? 'noopener noreferrer' : undefined}
-          className="shrink-0 rounded-full bg-[#8c7df8] px-5 py-2 text-sm font-bold text-white hover:bg-[#bab1fa] transition-colors"
+          className="hidden md:block shrink-0 rounded-full bg-[#8c7df8] px-5 py-2 text-sm font-bold text-white hover:bg-[#bab1fa] transition-colors"
         >
           {ctaLabel}
         </a>
+
+        {/* Mobile nav */}
+        <MobileNav navItems={navItems} ctaLabel={ctaLabel} ctaUrl={ctaUrl} />
       </div>
     </header>
   )
