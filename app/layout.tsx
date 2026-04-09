@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { draftMode } from "next/headers";
-import { VisualEditing } from "next-sanity";
+import { VisualEditing } from "next-sanity/visual-editing/client-component";
 import Nav from "@/components/Nav";
 import { SanityLive } from "@/lib/live";
 import "./globals.css";
