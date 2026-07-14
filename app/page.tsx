@@ -1,7 +1,6 @@
-import { urlFor } from '@/lib/sanity'
 import { sanityFetch } from '@/lib/live'
-import AnnouncementBar from '@/components/AnnouncementBar'
 import Hero from '@/components/Hero'
+import PhotoGallery from '@/components/PhotoGallery'
 import StatsBalk from '@/components/StatsBalk'
 import ServicesGrid from '@/components/ServicesGrid'
 import MembershipsSection from '@/components/MembershipsSection'
@@ -22,26 +21,18 @@ export default async function HomePage() {
     sanityFetch({ query: `*[_type == "faq"] | order(order asc)` }),
   ])
 
-  const heroImageUrl = settings?.hero?.image
-    ? urlFor(settings.hero.image).width(1600).auto('format').quality(80).url()
-    : null
-
   return (
     <>
-      {settings?.trialCtaLabel && settings?.trialCtaUrl && (
-        <AnnouncementBar label={settings.trialCtaLabel} url={settings.trialCtaUrl} />
-      )}
-
       <Hero
-        heading={settings?.hero?.heading ?? 'Turn your resolutions into a routine.'}
-        subheading={settings?.hero?.subheading ?? "Whether you're a beginner or an athlete: we help you start strong and stay strong."}
-        ctaLabel={settings?.trialCtaLabel ?? 'Get 1 Week Free'}
+        heading={settings?.hero?.heading ?? 'The grand opening, September 20th 2025'}
+        subheading={settings?.hero?.subheading ?? 'You can find us at xxx adres in Utrecht, right next to the Douwe Egberts factory.'}
+        ctaLabel={settings?.trialCtaLabel ?? 'Join from day one'}
         ctaUrl={settings?.trialCtaUrl ?? '#'}
-        secondaryCtaLabel="Book a drop-in"
+        secondaryCtaLabel="Check our roster"
         secondaryCtaUrl={settings?.bookingUrl ?? '#'}
-        imageUrl={heroImageUrl}
-        googleReviews={settings?.googleReviews}
       />
+
+      <PhotoGallery />
 
       {settings?.stats?.length > 0 && <StatsBalk stats={settings.stats} />}
 

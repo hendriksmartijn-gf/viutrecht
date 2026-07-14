@@ -13,72 +13,96 @@ type Props = {
   bookingUrl: string
 }
 
+function CheckIcon({ light }: { light?: boolean }) {
+  return (
+    <span
+      className={`flex items-center justify-center shrink-0 w-[22px] h-[22px] rounded-full border ${
+        light ? 'border-white' : 'border-[#151c1f]'
+      }`}
+    >
+      <svg className="w-3 h-3" viewBox="0 0 12 10" fill="none">
+        <path
+          d="M1 5L4.5 8.5L11 1"
+          stroke={light ? '#ffffff' : '#151c1f'}
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    </span>
+  )
+}
+
+function ArrowIcon({ color }: { color: string }) {
+  return (
+    <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none">
+      <path d="M7 17L17 7M17 7H8M17 7V16" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
+}
+
 export default function MembershipsSection({ memberships, bookingUrl }: Props) {
   return (
-    <section className="bg-[#0a0e1a] py-24 px-6">
+    <section className="bg-[var(--color-cream)] py-24 px-6">
       <div className="max-w-6xl mx-auto">
-        <div className="mb-14">
-          <p className="text-xs font-semibold uppercase tracking-widest text-[#8c7df8] mb-3">Word lid</p>
-          <h2 className="text-4xl md:text-5xl font-black text-white">
-            Kies jouw lidmaatschap.
+        <div className="text-center mb-14">
+          <h2 className="font-heading text-4xl md:text-[62px] tracking-[-1.86px] text-[#151c1f] mb-3">
+            Your Perfect Plan
           </h2>
+          <p className="text-lg text-[#151c1f]">Affordable and scalable options for everyone.</p>
         </div>
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
           {memberships.map((m) => (
             <div
               key={m._id}
-              className={`relative rounded-2xl p-8 flex flex-col border transition-all duration-300 ${
-                m.highlighted
-                  ? 'bg-[#8c7df8] border-[#8c7df8] text-white'
-                  : 'bg-[#10141f] border-white/5 hover:border-white/20 text-white'
+              className={`rounded-[20px] p-10 flex flex-col gap-10 ${
+                m.highlighted ? 'bg-[var(--color-purple)]' : 'bg-white'
               }`}
             >
-              {m.highlighted && (
-                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-[#0a0e1a] px-4 py-1 text-xs font-bold text-[#8c7df8] whitespace-nowrap">
-                  Meest gekozen
+              <div className="flex flex-col gap-5">
+                <span
+                  className={`inline-flex self-start rounded-full px-3 py-1.5 text-xs font-medium ${
+                    m.highlighted ? 'bg-[var(--color-yellow)] text-[var(--color-purple)]' : 'bg-[var(--color-purple)] text-white'
+                  }`}
+                >
+                  {m.title}
                 </span>
-              )}
-              <h3 className="text-xl font-black mb-2">{m.title}</h3>
-              <div className="flex items-baseline gap-1 mb-4">
-                <span className="text-5xl font-black">€{m.price}</span>
-                <span className={`text-sm font-medium ${m.highlighted ? 'text-white/60' : 'text-[#8b94a8]'}`}>
-                  / maand
-                </span>
+
+                <div className="flex flex-col gap-5">
+                  <p className={m.highlighted ? 'text-white' : 'text-[#151c1f]'}>
+                    <span className="font-heading font-medium text-4xl md:text-[55px]">€{m.price}</span>
+                    <span className={`font-heading font-medium text-2xl md:text-[38px] ${m.highlighted ? 'text-white/90' : 'text-[#151c1f]'}`}>
+                      /mo
+                    </span>
+                  </p>
+                  <p className={`text-base font-medium ${m.highlighted ? 'text-white/50' : 'text-[#717171]'}`}>
+                    What&rsquo;s included
+                  </p>
+                </div>
+
+                {m.features && m.features.length > 0 && (
+                  <ul className="flex flex-col gap-[15px]">
+                    {m.features.map((f, i) => (
+                      <li key={i} className="flex items-center gap-2.5">
+                        <CheckIcon light={m.highlighted} />
+                        <span className={`text-lg font-medium ${m.highlighted ? 'text-[#e9e6fa]' : 'text-[#151c1f]'}`}>
+                          {f}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
-              {m.credits && (
-                <p className={`text-sm font-semibold mb-4 ${m.highlighted ? 'text-white/70' : 'text-[#8b94a8]'}`}>
-                  {m.credits} credits per maand
-                </p>
-              )}
-              {m.description && (
-                <p className={`text-sm mb-6 leading-relaxed ${m.highlighted ? 'text-white/70' : 'text-[#8b94a8]'}`}>
-                  {m.description}
-                </p>
-              )}
-              {m.features && m.features.length > 0 && (
-                <ul className="space-y-2 mb-8 flex-1">
-                  {m.features.map((f, i) => (
-                    <li key={i} className="flex items-start gap-2 text-sm">
-                      <svg
-                        className={`mt-0.5 w-4 h-4 flex-shrink-0 ${m.highlighted ? 'text-white' : 'text-[#8c7df8]'}`}
-                        fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                      </svg>
-                      <span className={m.highlighted ? 'text-white' : 'text-[#e2e8f0]'}>{f}</span>
-                    </li>
-                  ))}
-                </ul>
-              )}
+
               <a
                 href={bookingUrl}
-                className={`mt-auto text-center py-3 px-6 rounded-full font-bold text-sm transition-colors ${
-                  m.highlighted
-                    ? 'bg-[#0a0e1a] text-[#8c7df8] hover:bg-[#10141f]'
-                    : 'bg-white/5 text-white hover:bg-white/10 border border-white/10'
+                className={`flex items-center justify-center gap-2.5 rounded-2xl py-4 font-heading font-medium text-base transition-opacity hover:opacity-90 ${
+                  m.highlighted ? 'bg-white text-[#573cff]' : 'bg-[var(--color-yellow)] text-[#151c1f]'
                 }`}
               >
-                Aanmelden
+                Become a member
+                <ArrowIcon color={m.highlighted ? '#573cff' : '#151c1f'} />
               </a>
             </div>
           ))}

@@ -6,15 +6,25 @@
   --color-accent: #8c7df8;
   --color-accent-light: #bab1fa;
   --color-muted: #8b94a8;
+
+  --color-cream: #fdf8ee;
+  --color-ink: #151c1f;
+  --color-ink-muted: #717171;
+  --color-purple: #6955ff;
+  --color-purple-soft: rgba(105, 85, 255, 0.25);
+  --color-yellow: #ffe486;
+  --color-pink-from: #ff6c96;
+  --color-pink-to: #eb396b;
 }
 
 @theme inline {
   --font-sans: var(--font-inter);
+  --font-heading: var(--font-poppins);
 }
 
 body {
-  background-color: var(--color-dark);
-  color: #e2e8f0;
+  background-color: var(--color-cream);
+  color: var(--color-ink);
   font-family: var(--font-inter), sans-serif;
   -webkit-font-smoothing: antialiased;
 }
