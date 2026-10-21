@@ -4,6 +4,10 @@ import { Button } from "./Button";
 
 type Membership = NonNullable<SETTINGS_QUERY_RESULT>["memberships"][number];
 
+// White chip text needs the darker purple: on lavender (#8b7ef8) it only reaches 3.3:1, below
+// the 4.5:1 WCAG AA asks for text this small; on primary (#6a5ae0) it is 5.1:1.
+const FEATURED_CHIP = "bg-primary text-white";
+
 const ACCESS_LABELS = { classes: "allClasses", openGym: "openGym", openPlatform: "openPlatform" } as const;
 
 export function PlanCard({ membership: m, lang }: { membership: Membership; lang: Language }) {
@@ -23,7 +27,7 @@ export function PlanCard({ membership: m, lang }: { membership: Membership; lang
       <div className="flex items-center justify-between gap-3">
         <h3 className="text-[22px] font-semibold tracking-[-0.02em] md:text-[26px]">{m.name}</h3>
         {m.badge && (
-          <span className={`rounded-full px-2.5 py-[5px] font-mono text-[9px] font-medium md:px-3 md:text-[10px] uppercase tracking-[0.03em] text-ink/90 ${featured ? "bg-lavender" : "bg-sun"}`}>
+          <span className={`rounded-full px-2.5 py-[5px] font-mono text-[9px] font-medium md:px-3 md:text-[10px] uppercase tracking-[0.03em] ${featured ? FEATURED_CHIP : "bg-sun text-ink/90"}`}>
             {m.badge}
           </span>
         )}
@@ -33,7 +37,7 @@ export function PlanCard({ membership: m, lang }: { membership: Membership; lang
         <span className="text-[14px] text-ink/60 md:text-[16px]">/{interval.replace(/^per\s/, "")}</span>
       </p>
       {perClass && (
-        <p className={`self-start rounded-full px-2.5 py-[5px] font-mono text-[10px] md:px-3 md:py-1.5 md:text-[11px] font-medium uppercase tracking-[0.03em] text-ink/90 ${featured ? "bg-lavender" : "bg-lilac"}`}>
+        <p className={`self-start rounded-full px-2.5 py-[5px] font-mono text-[10px] md:px-3 md:py-1.5 md:text-[11px] font-medium uppercase tracking-[0.03em] ${featured ? FEATURED_CHIP : "bg-lilac text-ink/90"}`}>
           ≈ {eur(perClass)} {t.perClass}
         </p>
       )}
