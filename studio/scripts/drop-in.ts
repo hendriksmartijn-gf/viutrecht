@@ -1,5 +1,6 @@
 // Adds the Sportbit drop-in planner as a text link under the NL pricing blocks (homepage and
-// /lidmaatschappen) and as a quick link in the mega menu. Run with:
+// /lidmaatschappen), as a quick link in the mega menu and as the last item of the main menu.
+// Safe to run again: every link is replaced, not added twice. Run with:
 //   npx sanity exec scripts/drop-in.ts --with-user-token
 import {getCliClient} from 'sanity/cli'
 
@@ -25,6 +26,13 @@ async function main() {
       .insert('after', 'classesMenu.quickLinks[-1]', [
         {_key: 'dropin', _type: 'quickLink', link: link('Drop-in'), description: 'Even in Utrecht? Train een dag mee'},
       ]),
+  )
+  // The main menu shows no emoji, so this one goes without.
+  tx.patch('navigation-nl', (p) =>
+    p
+      .setIfMissing({header: []})
+      .unset(['header[_key=="dropin"]'])
+      .insert('after', 'header[-1]', [{_key: 'dropin', _type: 'link', label: 'Drop-in', linkType: 'external', url: URL}]),
   )
   await tx.commit()
   console.log('done', docs.map((d) => d._id))

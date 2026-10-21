@@ -32,16 +32,18 @@ export function TopBar({ lang, navigation, settings }: Props) {
 }
 
 // Overlays the hero (white) or sits on paper (ink), pins to the top while scrolling and turns
-// solid with the mega menu open; see .site-header in globals.css.
+// solid with the mega menu open; see .site-header in globals.css. From xl a three-column grid
+// keeps the menu centred on the page; below that there is no room, so the menu sits between
+// logo and actions.
 export function SiteHeader({ lang, navigation, settings }: Props) {
   const t = UI[lang];
   const trialUrl = settings?.trialUrl;
   return (
-    <StickyHeader className="site-header absolute inset-x-0 z-20 flex h-14 items-center justify-between pr-4 transition-[background-color,color,box-shadow] duration-300 md:h-20 md:bg-white/10 lg:pr-20">
+    <StickyHeader className="site-header absolute inset-x-0 z-20 flex h-14 items-center justify-between pr-4 transition-[background-color,color,box-shadow] duration-300 md:h-20 md:bg-white/10 lg:pr-20 xl:grid xl:grid-cols-[1fr_auto_1fr] xl:pr-0">
       <Link
         href={pathFor("homePage", lang)}
         aria-label={`${settings?.siteName ?? "VI Utrecht"}, ${t.home}`}
-        className="flex size-14 shrink-0 items-center justify-center bg-lavender md:size-20"
+        className="flex size-14 shrink-0 items-center justify-center justify-self-start bg-lavender md:size-20"
       >
         <Image src="/brand/logo-header.svg" alt="" width={47.85} height={44} priority unoptimized className="h-8 w-[34.8px] md:h-11 md:w-[47.85px]" />
       </Link>
@@ -58,7 +60,7 @@ export function SiteHeader({ lang, navigation, settings }: Props) {
           </ul>
         </nav>
       ) : null}
-      <div className="flex items-center gap-3.5 md:gap-5">
+      <div className="flex items-center gap-3.5 justify-self-end md:gap-5 xl:pr-20">
         <LanguageSwitch lang={lang} className="text-[12px] md:text-[13px]" />
         {settings?.loginUrl && (
           <a href={settings.loginUrl} className="hidden text-[15px] font-medium opacity-85 hover:opacity-100 md:block">
