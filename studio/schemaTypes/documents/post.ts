@@ -18,6 +18,13 @@ export const post = defineType({
   fields: [
     languageField,
     defineField({name: 'title', title: 'Titel', type: 'string', group: 'content', validation: (rule) => rule.required().max(90)}),
+    defineField({
+      name: 'titleEmphasis',
+      title: 'Schuine afsluiter van de kop',
+      type: 'string',
+      group: 'content',
+      description: 'Optioneel. Staat in de kop van het artikel achter de titel, schuin en paars, bijv. "één box vol PR’s."',
+    }),
     {...slugField, group: 'content'},
     defineField({
       name: 'postType',
@@ -31,6 +38,8 @@ export const post = defineType({
           {title: 'Event-aankondiging', value: 'event'},
           {title: 'Wijziging (rooster, tijden, prijzen)', value: 'change'},
           {title: 'Community / ledenverhaal', value: 'community'},
+          {title: 'Training & tips', value: 'training'},
+          {title: 'Voeding', value: 'nutrition'},
         ],
         layout: 'radio',
       },
@@ -63,7 +72,23 @@ export const post = defineType({
       validation: (rule) => rule.required().max(240),
     }),
     defineField({name: 'heroImage', title: 'Afbeelding', type: 'imageWithAlt', group: 'content'}),
-    defineField({name: 'body', title: 'Tekst', type: 'blockContent', group: 'content', validation: (rule) => rule.required()}),
+    defineField({name: 'heroCaption', title: 'Bijschrift bij de foto', type: 'string', group: 'content', description: 'Bijv. "Foto: Open 26.3 bij VI".'}),
+    defineField({
+      name: 'body',
+      title: 'Tekst',
+      type: 'blockContent',
+      group: 'content',
+      description: 'Elke "Kop 2" komt in de inhoudsopgave naast het artikel.',
+      validation: (rule) => rule.required(),
+    }),
+    defineField({
+      name: 'tags',
+      title: 'Tags',
+      type: 'array',
+      group: 'content',
+      of: [defineArrayMember({type: 'string'})],
+      options: {layout: 'tags'},
+    }),
 
     defineField({
       name: 'author',

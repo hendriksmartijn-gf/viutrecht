@@ -335,12 +335,42 @@ export const newsSection = defineType({
   description: 'Toont automatisch de nieuwste berichten in de taal van de pagina.',
   fields: [
     heading,
-    defineField({name: 'limit', title: 'Aantal berichten', type: 'number', initialValue: 3, validation: (rule) => rule.min(1).max(12).integer()}),
+    defineField({
+      name: 'layout',
+      title: 'Weergave',
+      type: 'string',
+      initialValue: 'cards',
+      options: {
+        list: [
+          {title: 'Rij met de nieuwste berichten', value: 'cards'},
+          {title: 'Overzicht: uitgelicht, filters en alle berichten (nieuwspagina)', value: 'overview'},
+        ],
+        layout: 'radio',
+      },
+    }),
+    defineField({
+      name: 'limit',
+      title: 'Aantal berichten',
+      type: 'number',
+      initialValue: 3,
+      hidden: ({parent}) => parent?.layout === 'overview',
+      validation: (rule) => rule.min(1).max(12).integer(),
+    }),
     defineField({
       name: 'postType',
       title: 'Alleen dit soort',
       type: 'string',
-      options: {list: [{title: 'Nieuws', value: 'news'}, {title: 'Events', value: 'event'}, {title: 'Wijzigingen', value: 'change'}, {title: 'Community', value: 'community'}]},
+      hidden: ({parent}) => parent?.layout === 'overview',
+      options: {
+        list: [
+          {title: 'Nieuws', value: 'news'},
+          {title: 'Events', value: 'event'},
+          {title: 'Wijzigingen', value: 'change'},
+          {title: 'Community', value: 'community'},
+          {title: 'Training & tips', value: 'training'},
+          {title: 'Voeding', value: 'nutrition'},
+        ],
+      },
     }),
   ],
   preview: headingPreview('Laatste nieuws'),

@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import type {
   DISCIPLINE_QUERY_RESULT,
@@ -15,6 +14,7 @@ import { Motion } from "@/components/Motion";
 import { RichText } from "@/components/RichText";
 import { SanityImage } from "@/components/SanityImage";
 import { Sections } from "@/components/Sections";
+import { PostPage } from "@/components/PostPage";
 import { DisciplinePage } from "@/components/DisciplinePage";
 import { getDiscipline, getHome, getPage, getPost, getProgram, getRoutes, getSettings } from "@/sanity/fetch";
 import { isLanguage, pathFor, resolvePath, ROUTE_PREFIXES, UI, type Language } from "@/sanity/i18n";
@@ -124,11 +124,7 @@ export default async function RoutePage({ params }: PageProps<"/[lang]/[...path]
           </div>
         );
       case "post":
-        return (
-          <div className={column}>
-            <PostView doc={result.doc} lang={result.lang} overviews={overviews} />
-          </div>
-        );
+        return <PostView doc={result.doc} lang={result.lang} overviews={overviews} settings={settings} />;
     }
   }
 }
@@ -255,31 +251,21 @@ function ProgramView({ doc, lang, settings, overviews }: { doc: NonNullable<PROG
   );
 }
 
-function PostView({ doc, lang, overviews }: { doc: NonNullable<POST_QUERY_RESULT>; lang: Language; overviews: Overviews }) {
+async function PostView({ doc, lang, overviews, settings }: { doc: NonNullable<POST_QUERY_RESULT>; lang: Language; overviews: Overviews; settings: SETTINGS_QUERY_RESULT }) {
   const path = pathFor("post", lang, doc.slug);
+  const home = await getHome(lang);
+  const cta = home?.sections?.find((s) => s._type === "ctaSection");
   return (
-    <article className="py-12">
+    <>
       <JsonLd data={[postJsonLd(doc, lang), crumbs(lang, "post", { name: doc.title ?? "", path }, overviews)]} />
-      <header>
-        <h1 className="text-4xl font-semibold">{doc.title}</h1>
-        <p className="mt-2 text-sm">
-          {doc.publishedAt && (
-            <time dateTime={doc.publishedAt}>
-              {new Date(doc.publishedAt).toLocaleDateString(lang === "nl" ? "nl-NL" : "en-GB", { day: "numeric", month: "long", year: "numeric" })}
-            </time>
-          )}
-          {doc.author?.name && <> · {doc.author.name}</>}
-        </p>
-        <p className="mt-4 max-w-2xl text-lg">{doc.summary}</p>
-      </header>
-      <SanityImage image={doc.heroImage} width={1600} height={900} priority />
-      <RichText value={doc.body} />
-      {doc.program && (
-        <p className="mt-8">
-          <Link href={pathFor("program", doc.program.language, doc.program.slug)}>{doc.program.title} →</Link>
-        </p>
-      )}
-    </article>
+      <PostPage
+        doc={doc}
+        lang={lang}
+        overviewPath={overviews.post ? pathFor("page", lang, ROUTE_PREFIXES.post[lang]) : null}
+        cta={cta?._type === "ctaSection" ? cta : null}
+        trialUrl={settings?.trialUrl}
+      />
+    </>
   );
 }
 

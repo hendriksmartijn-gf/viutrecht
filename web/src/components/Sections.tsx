@@ -11,6 +11,7 @@ import { SanityImage } from "./SanityImage";
 import { SectionHead } from "./SectionHead";
 import { PlanCard, PunchCardRow } from "./MembershipCard";
 import { Carousel, SnapList } from "./Carousel";
+import { NewsOverview } from "./NewsOverview";
 
 export type Section = NonNullable<NonNullable<HOME_QUERY_RESULT>["sections"]>[number];
 type Settings = SETTINGS_QUERY_RESULT;
@@ -661,8 +662,10 @@ function Coaches({ section, lang, number }: SectionProps<"coachesSection">) {
 function Intro({ section, lang, settings, isFirst, pageTitle }: SectionProps<"introSection"> & { isFirst: boolean; pageTitle?: string | null }) {
   const t = UI[lang];
   const Title = isFirst ? "h1" : "h2";
+  // Without buttons or photo (the news page) the intro text sits next to the heading.
+  const textOnly = !section.primaryCta && !section.secondaryCta && !section.image?.asset;
   return (
-    <section className={`${WIDE} flex flex-col gap-12 pb-10 pt-12 md:pt-[88px]`}>
+    <section className={`${WIDE} flex flex-col gap-12 pb-10 pt-12 md:pt-[88px] ${textOnly ? "lg:flex-row lg:items-end lg:justify-between" : ""}`}>
       <div className="flex flex-col gap-7">
         {pageTitle && (
           <nav data-hero-item aria-label={t.breadcrumb}>
@@ -685,8 +688,8 @@ function Intro({ section, lang, settings, isFirst, pageTitle }: SectionProps<"in
           )}
         </Title>
       </div>
-      <div data-hero-item className="flex flex-col justify-between gap-8 lg:flex-row lg:items-end">
-        {section.intro && <p className="max-w-[520px] text-[20px] leading-[1.5] text-ink/72">{section.intro}</p>}
+      <div data-hero-item className={`flex flex-col justify-between gap-8 lg:flex-row lg:items-end ${textOnly ? "lg:w-[340px] lg:shrink-0" : ""}`}>
+        {section.intro && <p className={`max-w-[520px] leading-[1.5] text-ink/72 ${textOnly ? "text-[18px]" : "text-[20px]"}`}>{section.intro}</p>}
         <div className="flex flex-wrap gap-3">
           <Button link={section.primaryCta} trialUrl={settings?.trialUrl} />
           <Button link={section.secondaryCta} trialUrl={settings?.trialUrl} variant="ghostDark" />
@@ -768,6 +771,14 @@ function Statement({ section }: { section: Of<"statementSection"> }) {
 }
 
 function News({ section, lang, number }: SectionProps<"newsSection">) {
+  // The news page itself: featured post, filters and every post (the page intro is the hero).
+  if (section.layout === "overview") {
+    return (
+      <section className={`${WIDE} pb-20 md:pb-28`}>
+        <NewsOverview posts={section.items ?? []} lang={lang} />
+      </section>
+    );
+  }
   const items = section.items?.slice(0, section.limit ?? 3) ?? [];
   if (!items.length) return null;
   return (

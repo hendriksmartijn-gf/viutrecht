@@ -1,6 +1,7 @@
 // Puts an intro (H1 + text + button) at the top of the NL overview pages that only showed their
-// bare title: Lidmaatschappen, Lessen and Nieuws. The membership copy follows the current
-// viutrecht.nl page; the 10% annual discount matches settings.annualDiscountPercent.
+// bare title: Lidmaatschappen, Lessen and Nieuws, and switches the news page to the overview.
+// The membership copy follows the current viutrecht.nl page; the 10% annual discount matches
+// settings.annualDiscountPercent.
 // Safe to run again: an existing intro on these pages is replaced. Run with:
 //   npx sanity exec scripts/page-intros.ts --with-user-token
 import {getCliClient} from 'sanity/cli'
@@ -24,9 +25,9 @@ const intros: Record<string, {text: string; emphasis: string; intro: string; pri
     primaryCta: trial,
   },
   nieuws: {
-    text: 'Nieuws',
-    emphasis: 'en updates.',
-    intro: 'Events, roosterwijzigingen en wat er verder speelt bij VI Utrecht.',
+    text: 'Nieuws & verhalen',
+    emphasis: 'uit de box.',
+    intro: 'Events, tips van de coaches, roosterwijzigingen en verhalen van leden. Alles wat er speelt bij VI.',
   },
 }
 
@@ -44,6 +45,9 @@ async function main() {
       p.setIfMissing({sections: []}).unset([`sections[_key=="intro-${page.slug}"]`]).insert('before', 'sections[0]', [section]),
     )
   }
+  // The news page shows its posts as the full overview (featured, filters, all posts).
+  const news = pages.find((p) => p.slug === 'nieuws')
+  if (news) tx.patch(news._id, (p) => p.set({'sections[_type=="newsSection"].layout': 'overview'}))
   await tx.commit()
   console.log('intros:', pages.map((p) => p.slug))
 }

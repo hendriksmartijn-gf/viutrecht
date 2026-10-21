@@ -37,6 +37,7 @@ const DISCIPLINE_CARD = /* groq */ `{
 // Resolve internal link annotations so the frontend can build paths.
 const BODY = /* groq */ `[]{
   ...,
+  _type == "inlineCta" => {heading, text, "link": link${LINK}},
   markDefs[]{
     ...,
     _type == "internalLink" => {"reference": reference->{_type, language, slug}}
@@ -83,7 +84,10 @@ const POST_CARD = /* groq */ `{
   postType,
   publishedAt,
   summary,
-  heroImage${IMAGE}
+  heroImage${IMAGE},
+  // For the reading time (characters of the body text).
+  "textLength": length(pt::text(body)),
+  "author": author->{name, "role": coalesce(role[language == $lang][0].value, role[language == "nl"][0].value), photo${IMAGE}}
 }`;
 
 // Temporary announcements drop out of lists and the sitemap after their date.
@@ -131,7 +135,8 @@ const SECTIONS = /* groq */ `sections[]{
     "items": *[
       _type == "post" && language == $lang && defined(slug.current) && ${POST_IS_CURRENT} &&
       (!defined(^.postType) || postType == ^.postType)
-    ] | order(publishedAt desc)[0...12]${POST_CARD},
+    ] | order(publishedAt desc)[0...60]${POST_CARD},
+    layout,
     limit
   },
   _type == "ctaSection" => {cta${LINK}, note},
@@ -296,9 +301,16 @@ export const POST_QUERY = defineQuery(`*[_type == "post" && language == $lang &&
   publishedAt,
   relevantUntil,
   "isCurrent": ${POST_IS_CURRENT},
+  titleEmphasis,
   summary,
   heroImage${IMAGE},
+  heroCaption,
+  tags,
   "body": body${BODY},
+  "textLength": length(pt::text(body)),
+  // Same kind first, then the newest others.
+  "related": *[_type == "post" && language == $lang && _id != ^._id && defined(slug.current) && ${POST_IS_CURRENT}]
+    | order(select(postType == ^.postType => 0, 1) asc, publishedAt desc)[0...3]${POST_CARD},
   "author": author->${COACH},
   "program": program->{_type, language, title, "slug": slug.current, startDate},
   seo,

@@ -40,8 +40,10 @@ export type CtaSection = {
 export type NewsSection = {
   _type: "newsSection";
   heading?: SectionHeading;
+  layout?: "cards" | "overview";
   limit?: number;
-  postType?: "news" | "event" | "change" | "community";
+  postType?:
+    "news" | "event" | "change" | "community" | "training" | "nutrition";
 };
 
 export type StatementSection = {
@@ -153,6 +155,7 @@ export type ScheduleSection = {
   discipline?:
     | "crossfit"
     | "advanced-crossfit"
+    | "gymnastics"
     | "hyrox"
     | "weightlifting"
     | "strength"
@@ -377,6 +380,38 @@ export type BlockContent = Array<
       crop?: SanityImageCrop;
       alt?: string;
       _type: "image";
+      _key: string;
+    }
+  | {
+      quote?: string;
+      attribution?: string;
+      _type: "pullQuote";
+      _key: string;
+    }
+  | {
+      images?: Array<
+        {
+          _key: string;
+        } & ImageWithAlt
+      >;
+      _type: "imagePair";
+      _key: string;
+    }
+  | {
+      items?: Array<{
+        value?: string;
+        label?: string;
+        _type: "stat";
+        _key: string;
+      }>;
+      _type: "stats";
+      _key: string;
+    }
+  | {
+      heading?: string;
+      text?: string;
+      link?: Link;
+      _type: "inlineCta";
       _key: string;
     }
 >;
@@ -715,6 +750,7 @@ export type Discipline = {
   key?:
     | "crossfit"
     | "advanced-crossfit"
+    | "gymnastics"
     | "hyrox"
     | "weightlifting"
     | "strength"
@@ -813,6 +849,7 @@ export type Testimonial = {
   discipline?:
     | "crossfit"
     | "advanced-crossfit"
+    | "gymnastics"
     | "hyrox"
     | "weightlifting"
     | "strength"
@@ -837,6 +874,7 @@ export type Program = {
   discipline?:
     | "crossfit"
     | "advanced-crossfit"
+    | "gymnastics"
     | "hyrox"
     | "weightlifting"
     | "strength"
@@ -882,13 +920,17 @@ export type Post = {
   _rev: string;
   language?: string;
   title?: string;
+  titleEmphasis?: string;
   slug?: Slug;
-  postType?: "news" | "event" | "change" | "community";
+  postType?:
+    "news" | "event" | "change" | "community" | "training" | "nutrition";
   publishedAt?: string;
   relevantUntil?: string;
   summary?: string;
   heroImage?: ImageWithAlt;
+  heroCaption?: string;
   body?: BlockContent;
+  tags?: Array<string>;
   author?: CoachReference;
   program?: ProgramReference;
   disciplines?: Array<string>;
@@ -1593,7 +1635,7 @@ export type NAVIGATION_QUERY_RESULT = {
 
 // Source: ../web/src/sanity/queries.ts
 // Variable: HOME_QUERY
-// Query: *[_type == "homePage" && _id == "homePage-" + $lang][0]{  _id,  _type,  _updatedAt,  language,  seo,  sections[]{  _key,  _type,  heading,  intro,  _type == "heroSection" => {eyebrow, showRating, trustItems[]{_key, _type, label, value, name, "logo": logo.asset->{url, "width": metadata.dimensions.width, "height": metadata.dimensions.height}}, image{  asset,  hotspot,  crop,  alt,  "lqip": asset->metadata.lqip,  "dimensions": asset->metadata.dimensions}, primaryCta{  label,  linkType,  url,  emoji,  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}}, secondaryCta{  label,  linkType,  url,  emoji,  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}}},  _type == "introSection" => {primaryCta{  label,  linkType,  url,  emoji,  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}}, secondaryCta{  label,  linkType,  url,  emoji,  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}}, image{  asset,  hotspot,  crop,  alt,  "lqip": asset->metadata.lqip,  "dimensions": asset->metadata.dimensions}},  _type == "storySection" => {lead, body, card},  _type == "valuesSection" => {values[]{_key, title, description}},  _type == "statementSection" => {text, closing},  _type == "marqueeSection" => {"items": *[_type == "discipline" && language == $lang] | order(orderRank asc){_id, title}},  _type == "disciplinesSection" => {    cta{  label,  linkType,  url,  emoji,  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}},    "items": select(      count(disciplines) > 0 => disciplines[]->{  _id,  _type,  language,  key,  title,  "slug": slug.current,  summary,  tagline,  audienceLabel,  emoji,  "image": coalesce(cardImage, heroImage){  asset,  hotspot,  crop,  alt,  "lqip": asset->metadata.lqip,  "dimensions": asset->metadata.dimensions}},      *[_type == "discipline" && language == $lang] | order(orderRank asc){  _id,  _type,  language,  key,  title,  "slug": slug.current,  summary,  tagline,  audienceLabel,  emoji,  "image": coalesce(cardImage, heroImage){  asset,  hotspot,  crop,  alt,  "lqip": asset->metadata.lqip,  "dimensions": asset->metadata.dimensions}}    )  },  _type == "stepsSection" => {steps[]{_key, title, description}, cta{  label,  linkType,  url,  emoji,  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}}},  _type == "scheduleSection" => {discipline},  _type == "testimonialsSection" => {showRating, "items": testimonials[]->{_id, quote, quoteLanguage, authorName, memberSince, discipline, photo{  asset,  hotspot,  crop,  alt,  "lqip": asset->metadata.lqip,  "dimensions": asset->metadata.dimensions}}},  _type == "pricingSection" => {    "items": select(      count(memberships) > 0 => memberships[]->{  _id,  name,  membershipType,  price,  priceInterval,  credits,  validityMonths,  access,  signupUrl,  featured,  emoji,  "tagline": coalesce(tagline[language == $lang][0].value, tagline[language == "nl"][0].value),  "badge": coalesce(badge[language == $lang][0].value, badge[language == "nl"][0].value)},      *[_type == "membership" && coalesce(membershipType, "subscription") == "subscription"] | order(orderRank asc){  _id,  name,  membershipType,  price,  priceInterval,  credits,  validityMonths,  access,  signupUrl,  featured,  emoji,  "tagline": coalesce(tagline[language == $lang][0].value, tagline[language == "nl"][0].value),  "badge": coalesce(badge[language == $lang][0].value, badge[language == "nl"][0].value)}    ),    "punchCard": coalesce(punchCard->{  _id,  name,  membershipType,  price,  priceInterval,  credits,  validityMonths,  access,  signupUrl,  featured,  emoji,  "tagline": coalesce(tagline[language == $lang][0].value, tagline[language == "nl"][0].value),  "badge": coalesce(badge[language == $lang][0].value, badge[language == "nl"][0].value)}, *[_type == "membership" && membershipType == "punchCard"] | order(orderRank asc)[0]{  _id,  name,  membershipType,  price,  priceInterval,  credits,  validityMonths,  access,  signupUrl,  featured,  emoji,  "tagline": coalesce(tagline[language == $lang][0].value, tagline[language == "nl"][0].value),  "badge": coalesce(badge[language == $lang][0].value, badge[language == "nl"][0].value)}),    footnote,    secondaryCta{  label,  linkType,  url,  emoji,  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}},    cta{  label,  linkType,  url,  emoji,  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}}  },  _type == "faqSection" => {showContactInfo, image{  asset,  hotspot,  crop,  alt,  "lqip": asset->metadata.lqip,  "dimensions": asset->metadata.dimensions}, cta{  label,  linkType,  url,  emoji,  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}}, "items": faqs[]->{_id, question, answer}},  _type == "coachesSection" => {    "items": select(      count(coaches) > 0 => coaches[]->{  _id,  name,  "role": coalesce(role[language == $lang][0].value, role[language == "nl"][0].value),  "bio": coalesce(bio[language == $lang][0].value, bio[language == "nl"][0].value),  specialties,  certifications,  instagram,  photo{  asset,  hotspot,  crop,  alt,  "lqip": asset->metadata.lqip,  "dimensions": asset->metadata.dimensions}},      *[_type == "coach"] | order(orderRank asc){  _id,  name,  "role": coalesce(role[language == $lang][0].value, role[language == "nl"][0].value),  "bio": coalesce(bio[language == $lang][0].value, bio[language == "nl"][0].value),  specialties,  certifications,  instagram,  photo{  asset,  hotspot,  crop,  alt,  "lqip": asset->metadata.lqip,  "dimensions": asset->metadata.dimensions}}    )  },  _type == "newsSection" => {    "items": *[      _type == "post" && language == $lang && defined(slug.current) && (!defined(relevantUntil) || relevantUntil >= string::split(string(now()), "T")[0]) &&      (!defined(^.postType) || postType == ^.postType)    ] | order(publishedAt desc)[0...12]{  _id,  _type,  language,  title,  "slug": slug.current,  postType,  publishedAt,  summary,  heroImage{  asset,  hotspot,  crop,  alt,  "lqip": asset->metadata.lqip,  "dimensions": asset->metadata.dimensions}},    limit  },  _type == "ctaSection" => {cta{  label,  linkType,  url,  emoji,  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}}, note},  _type == "textSection" => {"body": body[]{  ...,  markDefs[]{    ...,    _type == "internalLink" => {"reference": reference->{_type, language, slug}}  }}}}}
+// Query: *[_type == "homePage" && _id == "homePage-" + $lang][0]{  _id,  _type,  _updatedAt,  language,  seo,  sections[]{  _key,  _type,  heading,  intro,  _type == "heroSection" => {eyebrow, showRating, trustItems[]{_key, _type, label, value, name, "logo": logo.asset->{url, "width": metadata.dimensions.width, "height": metadata.dimensions.height}}, image{  asset,  hotspot,  crop,  alt,  "lqip": asset->metadata.lqip,  "dimensions": asset->metadata.dimensions}, primaryCta{  label,  linkType,  url,  emoji,  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}}, secondaryCta{  label,  linkType,  url,  emoji,  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}}},  _type == "introSection" => {primaryCta{  label,  linkType,  url,  emoji,  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}}, secondaryCta{  label,  linkType,  url,  emoji,  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}}, image{  asset,  hotspot,  crop,  alt,  "lqip": asset->metadata.lqip,  "dimensions": asset->metadata.dimensions}},  _type == "storySection" => {lead, body, card},  _type == "valuesSection" => {values[]{_key, title, description}},  _type == "statementSection" => {text, closing},  _type == "marqueeSection" => {"items": *[_type == "discipline" && language == $lang] | order(orderRank asc){_id, title}},  _type == "disciplinesSection" => {    cta{  label,  linkType,  url,  emoji,  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}},    "items": select(      count(disciplines) > 0 => disciplines[]->{  _id,  _type,  language,  key,  title,  "slug": slug.current,  summary,  tagline,  audienceLabel,  emoji,  "image": coalesce(cardImage, heroImage){  asset,  hotspot,  crop,  alt,  "lqip": asset->metadata.lqip,  "dimensions": asset->metadata.dimensions}},      *[_type == "discipline" && language == $lang] | order(orderRank asc){  _id,  _type,  language,  key,  title,  "slug": slug.current,  summary,  tagline,  audienceLabel,  emoji,  "image": coalesce(cardImage, heroImage){  asset,  hotspot,  crop,  alt,  "lqip": asset->metadata.lqip,  "dimensions": asset->metadata.dimensions}}    )  },  _type == "stepsSection" => {steps[]{_key, title, description}, cta{  label,  linkType,  url,  emoji,  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}}},  _type == "scheduleSection" => {discipline},  _type == "testimonialsSection" => {showRating, "items": testimonials[]->{_id, quote, quoteLanguage, authorName, memberSince, discipline, photo{  asset,  hotspot,  crop,  alt,  "lqip": asset->metadata.lqip,  "dimensions": asset->metadata.dimensions}}},  _type == "pricingSection" => {    "items": select(      count(memberships) > 0 => memberships[]->{  _id,  name,  membershipType,  price,  priceInterval,  credits,  validityMonths,  access,  signupUrl,  featured,  emoji,  "tagline": coalesce(tagline[language == $lang][0].value, tagline[language == "nl"][0].value),  "badge": coalesce(badge[language == $lang][0].value, badge[language == "nl"][0].value)},      *[_type == "membership" && coalesce(membershipType, "subscription") == "subscription"] | order(orderRank asc){  _id,  name,  membershipType,  price,  priceInterval,  credits,  validityMonths,  access,  signupUrl,  featured,  emoji,  "tagline": coalesce(tagline[language == $lang][0].value, tagline[language == "nl"][0].value),  "badge": coalesce(badge[language == $lang][0].value, badge[language == "nl"][0].value)}    ),    "punchCard": coalesce(punchCard->{  _id,  name,  membershipType,  price,  priceInterval,  credits,  validityMonths,  access,  signupUrl,  featured,  emoji,  "tagline": coalesce(tagline[language == $lang][0].value, tagline[language == "nl"][0].value),  "badge": coalesce(badge[language == $lang][0].value, badge[language == "nl"][0].value)}, *[_type == "membership" && membershipType == "punchCard"] | order(orderRank asc)[0]{  _id,  name,  membershipType,  price,  priceInterval,  credits,  validityMonths,  access,  signupUrl,  featured,  emoji,  "tagline": coalesce(tagline[language == $lang][0].value, tagline[language == "nl"][0].value),  "badge": coalesce(badge[language == $lang][0].value, badge[language == "nl"][0].value)}),    footnote,    secondaryCta{  label,  linkType,  url,  emoji,  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}},    cta{  label,  linkType,  url,  emoji,  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}}  },  _type == "faqSection" => {showContactInfo, image{  asset,  hotspot,  crop,  alt,  "lqip": asset->metadata.lqip,  "dimensions": asset->metadata.dimensions}, cta{  label,  linkType,  url,  emoji,  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}}, "items": faqs[]->{_id, question, answer}},  _type == "coachesSection" => {    "items": select(      count(coaches) > 0 => coaches[]->{  _id,  name,  "role": coalesce(role[language == $lang][0].value, role[language == "nl"][0].value),  "bio": coalesce(bio[language == $lang][0].value, bio[language == "nl"][0].value),  specialties,  certifications,  instagram,  photo{  asset,  hotspot,  crop,  alt,  "lqip": asset->metadata.lqip,  "dimensions": asset->metadata.dimensions}},      *[_type == "coach"] | order(orderRank asc){  _id,  name,  "role": coalesce(role[language == $lang][0].value, role[language == "nl"][0].value),  "bio": coalesce(bio[language == $lang][0].value, bio[language == "nl"][0].value),  specialties,  certifications,  instagram,  photo{  asset,  hotspot,  crop,  alt,  "lqip": asset->metadata.lqip,  "dimensions": asset->metadata.dimensions}}    )  },  _type == "newsSection" => {    "items": *[      _type == "post" && language == $lang && defined(slug.current) && (!defined(relevantUntil) || relevantUntil >= string::split(string(now()), "T")[0]) &&      (!defined(^.postType) || postType == ^.postType)    ] | order(publishedAt desc)[0...60]{  _id,  _type,  language,  title,  "slug": slug.current,  postType,  publishedAt,  summary,  heroImage{  asset,  hotspot,  crop,  alt,  "lqip": asset->metadata.lqip,  "dimensions": asset->metadata.dimensions},  // For the reading time (characters of the body text).  "textLength": length(pt::text(body)),  "author": author->{name, "role": coalesce(role[language == $lang][0].value, role[language == "nl"][0].value), photo{  asset,  hotspot,  crop,  alt,  "lqip": asset->metadata.lqip,  "dimensions": asset->metadata.dimensions}}},    layout,    limit  },  _type == "ctaSection" => {cta{  label,  linkType,  url,  emoji,  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}}, note},  _type == "textSection" => {"body": body[]{  ...,  _type == "inlineCta" => {heading, text, "link": link{  label,  linkType,  url,  emoji,  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}}},  markDefs[]{    ...,    _type == "internalLink" => {"reference": reference->{_type, language, slug}}  }}}}}
 export type HOME_QUERY_RESULT = {
   _id: string;
   _type: "homePage";
@@ -1747,6 +1789,7 @@ export type HOME_QUERY_RESULT = {
           key:
             | "advanced-crossfit"
             | "crossfit"
+            | "gymnastics"
             | "hyrox"
             | "open-gym"
             | "personal-training"
@@ -2141,7 +2184,14 @@ export type HOME_QUERY_RESULT = {
           language: string | null;
           title: string | null;
           slug: string | null;
-          postType: "change" | "community" | "event" | "news" | null;
+          postType:
+            | "change"
+            | "community"
+            | "event"
+            | "news"
+            | "nutrition"
+            | "training"
+            | null;
           publishedAt: string | null;
           summary: string | null;
           heroImage: {
@@ -2152,7 +2202,21 @@ export type HOME_QUERY_RESULT = {
             lqip: string | null;
             dimensions: SanityImageDimensions | null;
           } | null;
+          textLength: number;
+          author: {
+            name: string | null;
+            role: string | null;
+            photo: {
+              asset: SanityImageAssetReference | null;
+              hotspot: SanityImageHotspot | null;
+              crop: SanityImageCrop | null;
+              alt: string | null;
+              lqip: string | null;
+              dimensions: SanityImageDimensions | null;
+            } | null;
+          } | null;
         }>;
+        layout: "cards" | "overview" | null;
         limit: number | null;
       }
     | {
@@ -2333,6 +2397,7 @@ export type HOME_QUERY_RESULT = {
         discipline:
           | "advanced-crossfit"
           | "crossfit"
+          | "gymnastics"
           | "hyrox"
           | "open-gym"
           | "personal-training"
@@ -2437,6 +2502,7 @@ export type HOME_QUERY_RESULT = {
           discipline:
             | "advanced-crossfit"
             | "crossfit"
+            | "gymnastics"
             | "hyrox"
             | "open-gym"
             | "personal-training"
@@ -2517,6 +2583,93 @@ export type HOME_QUERY_RESULT = {
               _key: string;
               markDefs: null;
             }
+          | {
+              images?: Array<
+                {
+                  _key: string;
+                } & ImageWithAlt
+              >;
+              _type: "imagePair";
+              _key: string;
+              markDefs: null;
+            }
+          | {
+              heading: string | null;
+              text: string | null;
+              link: {
+                label: string | null;
+                linkType: "external" | "internal" | "trial" | null;
+                url: string | null;
+                emoji: string | null;
+                internal:
+                  | {
+                      _type: "discipline";
+                      language: string | null;
+                      slug: string | null;
+                      emoji: string | null;
+                      pageType: null;
+                    }
+                  | {
+                      _type: "homePage";
+                      language: string | null;
+                      slug: null;
+                      emoji: null;
+                      pageType: null;
+                    }
+                  | {
+                      _type: "page";
+                      language: string | null;
+                      slug: string | null;
+                      emoji: null;
+                      pageType:
+                        | "about"
+                        | "blog"
+                        | "collection"
+                        | "contact"
+                        | "legal"
+                        | "pricing"
+                        | "schedule"
+                        | "standard"
+                        | null;
+                    }
+                  | {
+                      _type: "post";
+                      language: string | null;
+                      slug: string | null;
+                      emoji: null;
+                      pageType: null;
+                    }
+                  | {
+                      _type: "program";
+                      language: string | null;
+                      slug: string | null;
+                      emoji: null;
+                      pageType: null;
+                    }
+                  | null;
+              } | null;
+              _type: "inlineCta";
+              _key: string;
+              markDefs: null;
+            }
+          | {
+              quote?: string;
+              attribution?: string;
+              _type: "pullQuote";
+              _key: string;
+              markDefs: null;
+            }
+          | {
+              items?: Array<{
+                value?: string;
+                label?: string;
+                _type: "stat";
+                _key: string;
+              }>;
+              _type: "stats";
+              _key: string;
+              markDefs: null;
+            }
         > | null;
       }
     | {
@@ -2535,7 +2688,7 @@ export type HOME_QUERY_RESULT = {
 
 // Source: ../web/src/sanity/queries.ts
 // Variable: PAGE_QUERY
-// Query: *[_type == "page" && language == $lang && slug.current == $slug][0]{  _id,  _type,  _updatedAt,  language,  title,  "slug": slug.current,  pageType,  summary,  "body": body[]{  ...,  markDefs[]{    ...,    _type == "internalLink" => {"reference": reference->{_type, language, slug}}  }},  seo,  sections[]{  _key,  _type,  heading,  intro,  _type == "heroSection" => {eyebrow, showRating, trustItems[]{_key, _type, label, value, name, "logo": logo.asset->{url, "width": metadata.dimensions.width, "height": metadata.dimensions.height}}, image{  asset,  hotspot,  crop,  alt,  "lqip": asset->metadata.lqip,  "dimensions": asset->metadata.dimensions}, primaryCta{  label,  linkType,  url,  emoji,  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}}, secondaryCta{  label,  linkType,  url,  emoji,  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}}},  _type == "introSection" => {primaryCta{  label,  linkType,  url,  emoji,  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}}, secondaryCta{  label,  linkType,  url,  emoji,  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}}, image{  asset,  hotspot,  crop,  alt,  "lqip": asset->metadata.lqip,  "dimensions": asset->metadata.dimensions}},  _type == "storySection" => {lead, body, card},  _type == "valuesSection" => {values[]{_key, title, description}},  _type == "statementSection" => {text, closing},  _type == "marqueeSection" => {"items": *[_type == "discipline" && language == $lang] | order(orderRank asc){_id, title}},  _type == "disciplinesSection" => {    cta{  label,  linkType,  url,  emoji,  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}},    "items": select(      count(disciplines) > 0 => disciplines[]->{  _id,  _type,  language,  key,  title,  "slug": slug.current,  summary,  tagline,  audienceLabel,  emoji,  "image": coalesce(cardImage, heroImage){  asset,  hotspot,  crop,  alt,  "lqip": asset->metadata.lqip,  "dimensions": asset->metadata.dimensions}},      *[_type == "discipline" && language == $lang] | order(orderRank asc){  _id,  _type,  language,  key,  title,  "slug": slug.current,  summary,  tagline,  audienceLabel,  emoji,  "image": coalesce(cardImage, heroImage){  asset,  hotspot,  crop,  alt,  "lqip": asset->metadata.lqip,  "dimensions": asset->metadata.dimensions}}    )  },  _type == "stepsSection" => {steps[]{_key, title, description}, cta{  label,  linkType,  url,  emoji,  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}}},  _type == "scheduleSection" => {discipline},  _type == "testimonialsSection" => {showRating, "items": testimonials[]->{_id, quote, quoteLanguage, authorName, memberSince, discipline, photo{  asset,  hotspot,  crop,  alt,  "lqip": asset->metadata.lqip,  "dimensions": asset->metadata.dimensions}}},  _type == "pricingSection" => {    "items": select(      count(memberships) > 0 => memberships[]->{  _id,  name,  membershipType,  price,  priceInterval,  credits,  validityMonths,  access,  signupUrl,  featured,  emoji,  "tagline": coalesce(tagline[language == $lang][0].value, tagline[language == "nl"][0].value),  "badge": coalesce(badge[language == $lang][0].value, badge[language == "nl"][0].value)},      *[_type == "membership" && coalesce(membershipType, "subscription") == "subscription"] | order(orderRank asc){  _id,  name,  membershipType,  price,  priceInterval,  credits,  validityMonths,  access,  signupUrl,  featured,  emoji,  "tagline": coalesce(tagline[language == $lang][0].value, tagline[language == "nl"][0].value),  "badge": coalesce(badge[language == $lang][0].value, badge[language == "nl"][0].value)}    ),    "punchCard": coalesce(punchCard->{  _id,  name,  membershipType,  price,  priceInterval,  credits,  validityMonths,  access,  signupUrl,  featured,  emoji,  "tagline": coalesce(tagline[language == $lang][0].value, tagline[language == "nl"][0].value),  "badge": coalesce(badge[language == $lang][0].value, badge[language == "nl"][0].value)}, *[_type == "membership" && membershipType == "punchCard"] | order(orderRank asc)[0]{  _id,  name,  membershipType,  price,  priceInterval,  credits,  validityMonths,  access,  signupUrl,  featured,  emoji,  "tagline": coalesce(tagline[language == $lang][0].value, tagline[language == "nl"][0].value),  "badge": coalesce(badge[language == $lang][0].value, badge[language == "nl"][0].value)}),    footnote,    secondaryCta{  label,  linkType,  url,  emoji,  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}},    cta{  label,  linkType,  url,  emoji,  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}}  },  _type == "faqSection" => {showContactInfo, image{  asset,  hotspot,  crop,  alt,  "lqip": asset->metadata.lqip,  "dimensions": asset->metadata.dimensions}, cta{  label,  linkType,  url,  emoji,  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}}, "items": faqs[]->{_id, question, answer}},  _type == "coachesSection" => {    "items": select(      count(coaches) > 0 => coaches[]->{  _id,  name,  "role": coalesce(role[language == $lang][0].value, role[language == "nl"][0].value),  "bio": coalesce(bio[language == $lang][0].value, bio[language == "nl"][0].value),  specialties,  certifications,  instagram,  photo{  asset,  hotspot,  crop,  alt,  "lqip": asset->metadata.lqip,  "dimensions": asset->metadata.dimensions}},      *[_type == "coach"] | order(orderRank asc){  _id,  name,  "role": coalesce(role[language == $lang][0].value, role[language == "nl"][0].value),  "bio": coalesce(bio[language == $lang][0].value, bio[language == "nl"][0].value),  specialties,  certifications,  instagram,  photo{  asset,  hotspot,  crop,  alt,  "lqip": asset->metadata.lqip,  "dimensions": asset->metadata.dimensions}}    )  },  _type == "newsSection" => {    "items": *[      _type == "post" && language == $lang && defined(slug.current) && (!defined(relevantUntil) || relevantUntil >= string::split(string(now()), "T")[0]) &&      (!defined(^.postType) || postType == ^.postType)    ] | order(publishedAt desc)[0...12]{  _id,  _type,  language,  title,  "slug": slug.current,  postType,  publishedAt,  summary,  heroImage{  asset,  hotspot,  crop,  alt,  "lqip": asset->metadata.lqip,  "dimensions": asset->metadata.dimensions}},    limit  },  _type == "ctaSection" => {cta{  label,  linkType,  url,  emoji,  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}}, note},  _type == "textSection" => {"body": body[]{  ...,  markDefs[]{    ...,    _type == "internalLink" => {"reference": reference->{_type, language, slug}}  }}}},  "translations": *[_type == "translation.metadata" && references(^._id)][0].translations[].value->{  _type,  language,  "slug": slug.current}}
+// Query: *[_type == "page" && language == $lang && slug.current == $slug][0]{  _id,  _type,  _updatedAt,  language,  title,  "slug": slug.current,  pageType,  summary,  "body": body[]{  ...,  _type == "inlineCta" => {heading, text, "link": link{  label,  linkType,  url,  emoji,  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}}},  markDefs[]{    ...,    _type == "internalLink" => {"reference": reference->{_type, language, slug}}  }},  seo,  sections[]{  _key,  _type,  heading,  intro,  _type == "heroSection" => {eyebrow, showRating, trustItems[]{_key, _type, label, value, name, "logo": logo.asset->{url, "width": metadata.dimensions.width, "height": metadata.dimensions.height}}, image{  asset,  hotspot,  crop,  alt,  "lqip": asset->metadata.lqip,  "dimensions": asset->metadata.dimensions}, primaryCta{  label,  linkType,  url,  emoji,  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}}, secondaryCta{  label,  linkType,  url,  emoji,  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}}},  _type == "introSection" => {primaryCta{  label,  linkType,  url,  emoji,  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}}, secondaryCta{  label,  linkType,  url,  emoji,  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}}, image{  asset,  hotspot,  crop,  alt,  "lqip": asset->metadata.lqip,  "dimensions": asset->metadata.dimensions}},  _type == "storySection" => {lead, body, card},  _type == "valuesSection" => {values[]{_key, title, description}},  _type == "statementSection" => {text, closing},  _type == "marqueeSection" => {"items": *[_type == "discipline" && language == $lang] | order(orderRank asc){_id, title}},  _type == "disciplinesSection" => {    cta{  label,  linkType,  url,  emoji,  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}},    "items": select(      count(disciplines) > 0 => disciplines[]->{  _id,  _type,  language,  key,  title,  "slug": slug.current,  summary,  tagline,  audienceLabel,  emoji,  "image": coalesce(cardImage, heroImage){  asset,  hotspot,  crop,  alt,  "lqip": asset->metadata.lqip,  "dimensions": asset->metadata.dimensions}},      *[_type == "discipline" && language == $lang] | order(orderRank asc){  _id,  _type,  language,  key,  title,  "slug": slug.current,  summary,  tagline,  audienceLabel,  emoji,  "image": coalesce(cardImage, heroImage){  asset,  hotspot,  crop,  alt,  "lqip": asset->metadata.lqip,  "dimensions": asset->metadata.dimensions}}    )  },  _type == "stepsSection" => {steps[]{_key, title, description}, cta{  label,  linkType,  url,  emoji,  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}}},  _type == "scheduleSection" => {discipline},  _type == "testimonialsSection" => {showRating, "items": testimonials[]->{_id, quote, quoteLanguage, authorName, memberSince, discipline, photo{  asset,  hotspot,  crop,  alt,  "lqip": asset->metadata.lqip,  "dimensions": asset->metadata.dimensions}}},  _type == "pricingSection" => {    "items": select(      count(memberships) > 0 => memberships[]->{  _id,  name,  membershipType,  price,  priceInterval,  credits,  validityMonths,  access,  signupUrl,  featured,  emoji,  "tagline": coalesce(tagline[language == $lang][0].value, tagline[language == "nl"][0].value),  "badge": coalesce(badge[language == $lang][0].value, badge[language == "nl"][0].value)},      *[_type == "membership" && coalesce(membershipType, "subscription") == "subscription"] | order(orderRank asc){  _id,  name,  membershipType,  price,  priceInterval,  credits,  validityMonths,  access,  signupUrl,  featured,  emoji,  "tagline": coalesce(tagline[language == $lang][0].value, tagline[language == "nl"][0].value),  "badge": coalesce(badge[language == $lang][0].value, badge[language == "nl"][0].value)}    ),    "punchCard": coalesce(punchCard->{  _id,  name,  membershipType,  price,  priceInterval,  credits,  validityMonths,  access,  signupUrl,  featured,  emoji,  "tagline": coalesce(tagline[language == $lang][0].value, tagline[language == "nl"][0].value),  "badge": coalesce(badge[language == $lang][0].value, badge[language == "nl"][0].value)}, *[_type == "membership" && membershipType == "punchCard"] | order(orderRank asc)[0]{  _id,  name,  membershipType,  price,  priceInterval,  credits,  validityMonths,  access,  signupUrl,  featured,  emoji,  "tagline": coalesce(tagline[language == $lang][0].value, tagline[language == "nl"][0].value),  "badge": coalesce(badge[language == $lang][0].value, badge[language == "nl"][0].value)}),    footnote,    secondaryCta{  label,  linkType,  url,  emoji,  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}},    cta{  label,  linkType,  url,  emoji,  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}}  },  _type == "faqSection" => {showContactInfo, image{  asset,  hotspot,  crop,  alt,  "lqip": asset->metadata.lqip,  "dimensions": asset->metadata.dimensions}, cta{  label,  linkType,  url,  emoji,  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}}, "items": faqs[]->{_id, question, answer}},  _type == "coachesSection" => {    "items": select(      count(coaches) > 0 => coaches[]->{  _id,  name,  "role": coalesce(role[language == $lang][0].value, role[language == "nl"][0].value),  "bio": coalesce(bio[language == $lang][0].value, bio[language == "nl"][0].value),  specialties,  certifications,  instagram,  photo{  asset,  hotspot,  crop,  alt,  "lqip": asset->metadata.lqip,  "dimensions": asset->metadata.dimensions}},      *[_type == "coach"] | order(orderRank asc){  _id,  name,  "role": coalesce(role[language == $lang][0].value, role[language == "nl"][0].value),  "bio": coalesce(bio[language == $lang][0].value, bio[language == "nl"][0].value),  specialties,  certifications,  instagram,  photo{  asset,  hotspot,  crop,  alt,  "lqip": asset->metadata.lqip,  "dimensions": asset->metadata.dimensions}}    )  },  _type == "newsSection" => {    "items": *[      _type == "post" && language == $lang && defined(slug.current) && (!defined(relevantUntil) || relevantUntil >= string::split(string(now()), "T")[0]) &&      (!defined(^.postType) || postType == ^.postType)    ] | order(publishedAt desc)[0...60]{  _id,  _type,  language,  title,  "slug": slug.current,  postType,  publishedAt,  summary,  heroImage{  asset,  hotspot,  crop,  alt,  "lqip": asset->metadata.lqip,  "dimensions": asset->metadata.dimensions},  // For the reading time (characters of the body text).  "textLength": length(pt::text(body)),  "author": author->{name, "role": coalesce(role[language == $lang][0].value, role[language == "nl"][0].value), photo{  asset,  hotspot,  crop,  alt,  "lqip": asset->metadata.lqip,  "dimensions": asset->metadata.dimensions}}},    layout,    limit  },  _type == "ctaSection" => {cta{  label,  linkType,  url,  emoji,  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}}, note},  _type == "textSection" => {"body": body[]{  ...,  _type == "inlineCta" => {heading, text, "link": link{  label,  linkType,  url,  emoji,  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}}},  markDefs[]{    ...,    _type == "internalLink" => {"reference": reference->{_type, language, slug}}  }}}},  "translations": *[_type == "translation.metadata" && references(^._id)][0].translations[].value->{  _type,  language,  "slug": slug.current}}
 export type PAGE_QUERY_RESULT = {
   _id: string;
   _type: "page";
@@ -2608,6 +2761,93 @@ export type PAGE_QUERY_RESULT = {
         crop?: SanityImageCrop;
         alt?: string;
         _type: "image";
+        _key: string;
+        markDefs: null;
+      }
+    | {
+        images?: Array<
+          {
+            _key: string;
+          } & ImageWithAlt
+        >;
+        _type: "imagePair";
+        _key: string;
+        markDefs: null;
+      }
+    | {
+        heading: string | null;
+        text: string | null;
+        link: {
+          label: string | null;
+          linkType: "external" | "internal" | "trial" | null;
+          url: string | null;
+          emoji: string | null;
+          internal:
+            | {
+                _type: "discipline";
+                language: string | null;
+                slug: string | null;
+                emoji: string | null;
+                pageType: null;
+              }
+            | {
+                _type: "homePage";
+                language: string | null;
+                slug: null;
+                emoji: null;
+                pageType: null;
+              }
+            | {
+                _type: "page";
+                language: string | null;
+                slug: string | null;
+                emoji: null;
+                pageType:
+                  | "about"
+                  | "blog"
+                  | "collection"
+                  | "contact"
+                  | "legal"
+                  | "pricing"
+                  | "schedule"
+                  | "standard"
+                  | null;
+              }
+            | {
+                _type: "post";
+                language: string | null;
+                slug: string | null;
+                emoji: null;
+                pageType: null;
+              }
+            | {
+                _type: "program";
+                language: string | null;
+                slug: string | null;
+                emoji: null;
+                pageType: null;
+              }
+            | null;
+        } | null;
+        _type: "inlineCta";
+        _key: string;
+        markDefs: null;
+      }
+    | {
+        quote?: string;
+        attribution?: string;
+        _type: "pullQuote";
+        _key: string;
+        markDefs: null;
+      }
+    | {
+        items?: Array<{
+          value?: string;
+          label?: string;
+          _type: "stat";
+          _key: string;
+        }>;
+        _type: "stats";
         _key: string;
         markDefs: null;
       }
@@ -2760,6 +3000,7 @@ export type PAGE_QUERY_RESULT = {
           key:
             | "advanced-crossfit"
             | "crossfit"
+            | "gymnastics"
             | "hyrox"
             | "open-gym"
             | "personal-training"
@@ -3154,7 +3395,14 @@ export type PAGE_QUERY_RESULT = {
           language: string | null;
           title: string | null;
           slug: string | null;
-          postType: "change" | "community" | "event" | "news" | null;
+          postType:
+            | "change"
+            | "community"
+            | "event"
+            | "news"
+            | "nutrition"
+            | "training"
+            | null;
           publishedAt: string | null;
           summary: string | null;
           heroImage: {
@@ -3165,7 +3413,21 @@ export type PAGE_QUERY_RESULT = {
             lqip: string | null;
             dimensions: SanityImageDimensions | null;
           } | null;
+          textLength: number;
+          author: {
+            name: string | null;
+            role: string | null;
+            photo: {
+              asset: SanityImageAssetReference | null;
+              hotspot: SanityImageHotspot | null;
+              crop: SanityImageCrop | null;
+              alt: string | null;
+              lqip: string | null;
+              dimensions: SanityImageDimensions | null;
+            } | null;
+          } | null;
         }>;
+        layout: "cards" | "overview" | null;
         limit: number | null;
       }
     | {
@@ -3346,6 +3608,7 @@ export type PAGE_QUERY_RESULT = {
         discipline:
           | "advanced-crossfit"
           | "crossfit"
+          | "gymnastics"
           | "hyrox"
           | "open-gym"
           | "personal-training"
@@ -3450,6 +3713,7 @@ export type PAGE_QUERY_RESULT = {
           discipline:
             | "advanced-crossfit"
             | "crossfit"
+            | "gymnastics"
             | "hyrox"
             | "open-gym"
             | "personal-training"
@@ -3530,6 +3794,93 @@ export type PAGE_QUERY_RESULT = {
               _key: string;
               markDefs: null;
             }
+          | {
+              images?: Array<
+                {
+                  _key: string;
+                } & ImageWithAlt
+              >;
+              _type: "imagePair";
+              _key: string;
+              markDefs: null;
+            }
+          | {
+              heading: string | null;
+              text: string | null;
+              link: {
+                label: string | null;
+                linkType: "external" | "internal" | "trial" | null;
+                url: string | null;
+                emoji: string | null;
+                internal:
+                  | {
+                      _type: "discipline";
+                      language: string | null;
+                      slug: string | null;
+                      emoji: string | null;
+                      pageType: null;
+                    }
+                  | {
+                      _type: "homePage";
+                      language: string | null;
+                      slug: null;
+                      emoji: null;
+                      pageType: null;
+                    }
+                  | {
+                      _type: "page";
+                      language: string | null;
+                      slug: string | null;
+                      emoji: null;
+                      pageType:
+                        | "about"
+                        | "blog"
+                        | "collection"
+                        | "contact"
+                        | "legal"
+                        | "pricing"
+                        | "schedule"
+                        | "standard"
+                        | null;
+                    }
+                  | {
+                      _type: "post";
+                      language: string | null;
+                      slug: string | null;
+                      emoji: null;
+                      pageType: null;
+                    }
+                  | {
+                      _type: "program";
+                      language: string | null;
+                      slug: string | null;
+                      emoji: null;
+                      pageType: null;
+                    }
+                  | null;
+              } | null;
+              _type: "inlineCta";
+              _key: string;
+              markDefs: null;
+            }
+          | {
+              quote?: string;
+              attribution?: string;
+              _type: "pullQuote";
+              _key: string;
+              markDefs: null;
+            }
+          | {
+              items?: Array<{
+                value?: string;
+                label?: string;
+                _type: "stat";
+                _key: string;
+              }>;
+              _type: "stats";
+              _key: string;
+              markDefs: null;
+            }
         > | null;
       }
     | {
@@ -3576,7 +3927,7 @@ export type PAGE_QUERY_RESULT = {
 
 // Source: ../web/src/sanity/queries.ts
 // Variable: DISCIPLINE_QUERY
-// Query: *[_type == "discipline" && language == $lang && slug.current == $slug][0]{  _id,  _type,  _updatedAt,  language,  key,  title,  "slug": slug.current,  heading,  summary,  heroImage{  asset,  hotspot,  crop,  alt,  "lqip": asset->metadata.lqip,  "dimensions": asset->metadata.dimensions},  level,  durationMinutes,  maxGroupSize,  bookingType,  extraFacts[]{_key, label, value},  essentials{heading, intro, image{  asset,  hotspot,  crop,  alt,  "lqip": asset->metadata.lqip,  "dimensions": asset->metadata.dimensions}, items[]{_key, title, description}},  benefits,  lessonOutline,  "body": body[]{  ...,  markDefs[]{    ...,    _type == "internalLink" => {"reference": reference->{_type, language, slug}}  }},  "coaches": select(    count(coaches) > 0 => coaches[]->{  _id,  name,  "role": coalesce(role[language == $lang][0].value, role[language == "nl"][0].value),  "bio": coalesce(bio[language == $lang][0].value, bio[language == "nl"][0].value),  specialties,  certifications,  instagram,  photo{  asset,  hotspot,  crop,  alt,  "lqip": asset->metadata.lqip,  "dimensions": asset->metadata.dimensions}},    *[_type == "coach" && ^.key in specialties] | order(orderRank asc){  _id,  name,  "role": coalesce(role[language == $lang][0].value, role[language == "nl"][0].value),  "bio": coalesce(bio[language == $lang][0].value, bio[language == "nl"][0].value),  specialties,  certifications,  instagram,  photo{  asset,  hotspot,  crop,  alt,  "lqip": asset->metadata.lqip,  "dimensions": asset->metadata.dimensions}}  ),  "testimonial": testimonial->{_id, quote, quoteLanguage, authorName, memberSince, discipline, photo{  asset,  hotspot,  crop,  alt,  "lqip": asset->metadata.lqip,  "dimensions": asset->metadata.dimensions}},  "faqs": faqs[]->{_id, question, answer},  "related": related[]->{  _id,  _type,  language,  key,  title,  "slug": slug.current,  summary,  tagline,  audienceLabel,  emoji,  "image": coalesce(cardImage, heroImage){  asset,  hotspot,  crop,  alt,  "lqip": asset->metadata.lqip,  "dimensions": asset->metadata.dimensions}},  promise{label, quote, "coach": coach->{  _id,  name,  "role": coalesce(role[language == $lang][0].value, role[language == "nl"][0].value),  "bio": coalesce(bio[language == $lang][0].value, bio[language == "nl"][0].value),  specialties,  certifications,  instagram,  photo{  asset,  hotspot,  crop,  alt,  "lqip": asset->metadata.lqip,  "dimensions": asset->metadata.dimensions}}},  faqHeading,  ctaText,  "news": *[_type == "post" && language == $lang && ^.key in disciplines && (!defined(relevantUntil) || relevantUntil >= string::split(string(now()), "T")[0])] | order(publishedAt desc)[0...3]{  _id,  _type,  language,  title,  "slug": slug.current,  postType,  publishedAt,  summary,  heroImage{  asset,  hotspot,  crop,  alt,  "lqip": asset->metadata.lqip,  "dimensions": asset->metadata.dimensions}},  sportbitClassNames,  seo,  "translations": *[_type == "translation.metadata" && references(^._id)][0].translations[].value->{  _type,  language,  "slug": slug.current}}
+// Query: *[_type == "discipline" && language == $lang && slug.current == $slug][0]{  _id,  _type,  _updatedAt,  language,  key,  title,  "slug": slug.current,  heading,  summary,  heroImage{  asset,  hotspot,  crop,  alt,  "lqip": asset->metadata.lqip,  "dimensions": asset->metadata.dimensions},  level,  durationMinutes,  maxGroupSize,  bookingType,  extraFacts[]{_key, label, value},  essentials{heading, intro, image{  asset,  hotspot,  crop,  alt,  "lqip": asset->metadata.lqip,  "dimensions": asset->metadata.dimensions}, items[]{_key, title, description}},  benefits,  lessonOutline,  "body": body[]{  ...,  _type == "inlineCta" => {heading, text, "link": link{  label,  linkType,  url,  emoji,  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}}},  markDefs[]{    ...,    _type == "internalLink" => {"reference": reference->{_type, language, slug}}  }},  "coaches": select(    count(coaches) > 0 => coaches[]->{  _id,  name,  "role": coalesce(role[language == $lang][0].value, role[language == "nl"][0].value),  "bio": coalesce(bio[language == $lang][0].value, bio[language == "nl"][0].value),  specialties,  certifications,  instagram,  photo{  asset,  hotspot,  crop,  alt,  "lqip": asset->metadata.lqip,  "dimensions": asset->metadata.dimensions}},    *[_type == "coach" && ^.key in specialties] | order(orderRank asc){  _id,  name,  "role": coalesce(role[language == $lang][0].value, role[language == "nl"][0].value),  "bio": coalesce(bio[language == $lang][0].value, bio[language == "nl"][0].value),  specialties,  certifications,  instagram,  photo{  asset,  hotspot,  crop,  alt,  "lqip": asset->metadata.lqip,  "dimensions": asset->metadata.dimensions}}  ),  "testimonial": testimonial->{_id, quote, quoteLanguage, authorName, memberSince, discipline, photo{  asset,  hotspot,  crop,  alt,  "lqip": asset->metadata.lqip,  "dimensions": asset->metadata.dimensions}},  "faqs": faqs[]->{_id, question, answer},  "related": related[]->{  _id,  _type,  language,  key,  title,  "slug": slug.current,  summary,  tagline,  audienceLabel,  emoji,  "image": coalesce(cardImage, heroImage){  asset,  hotspot,  crop,  alt,  "lqip": asset->metadata.lqip,  "dimensions": asset->metadata.dimensions}},  promise{label, quote, "coach": coach->{  _id,  name,  "role": coalesce(role[language == $lang][0].value, role[language == "nl"][0].value),  "bio": coalesce(bio[language == $lang][0].value, bio[language == "nl"][0].value),  specialties,  certifications,  instagram,  photo{  asset,  hotspot,  crop,  alt,  "lqip": asset->metadata.lqip,  "dimensions": asset->metadata.dimensions}}},  faqHeading,  ctaText,  "news": *[_type == "post" && language == $lang && ^.key in disciplines && (!defined(relevantUntil) || relevantUntil >= string::split(string(now()), "T")[0])] | order(publishedAt desc)[0...3]{  _id,  _type,  language,  title,  "slug": slug.current,  postType,  publishedAt,  summary,  heroImage{  asset,  hotspot,  crop,  alt,  "lqip": asset->metadata.lqip,  "dimensions": asset->metadata.dimensions},  // For the reading time (characters of the body text).  "textLength": length(pt::text(body)),  "author": author->{name, "role": coalesce(role[language == $lang][0].value, role[language == "nl"][0].value), photo{  asset,  hotspot,  crop,  alt,  "lqip": asset->metadata.lqip,  "dimensions": asset->metadata.dimensions}}},  sportbitClassNames,  seo,  "translations": *[_type == "translation.metadata" && references(^._id)][0].translations[].value->{  _type,  language,  "slug": slug.current}}
 export type DISCIPLINE_QUERY_RESULT = {
   _id: string;
   _type: "discipline";
@@ -3585,6 +3936,7 @@ export type DISCIPLINE_QUERY_RESULT = {
   key:
     | "advanced-crossfit"
     | "crossfit"
+    | "gymnastics"
     | "hyrox"
     | "open-gym"
     | "personal-training"
@@ -3706,6 +4058,93 @@ export type DISCIPLINE_QUERY_RESULT = {
         _key: string;
         markDefs: null;
       }
+    | {
+        images?: Array<
+          {
+            _key: string;
+          } & ImageWithAlt
+        >;
+        _type: "imagePair";
+        _key: string;
+        markDefs: null;
+      }
+    | {
+        heading: string | null;
+        text: string | null;
+        link: {
+          label: string | null;
+          linkType: "external" | "internal" | "trial" | null;
+          url: string | null;
+          emoji: string | null;
+          internal:
+            | {
+                _type: "discipline";
+                language: string | null;
+                slug: string | null;
+                emoji: string | null;
+                pageType: null;
+              }
+            | {
+                _type: "homePage";
+                language: string | null;
+                slug: null;
+                emoji: null;
+                pageType: null;
+              }
+            | {
+                _type: "page";
+                language: string | null;
+                slug: string | null;
+                emoji: null;
+                pageType:
+                  | "about"
+                  | "blog"
+                  | "collection"
+                  | "contact"
+                  | "legal"
+                  | "pricing"
+                  | "schedule"
+                  | "standard"
+                  | null;
+              }
+            | {
+                _type: "post";
+                language: string | null;
+                slug: string | null;
+                emoji: null;
+                pageType: null;
+              }
+            | {
+                _type: "program";
+                language: string | null;
+                slug: string | null;
+                emoji: null;
+                pageType: null;
+              }
+            | null;
+        } | null;
+        _type: "inlineCta";
+        _key: string;
+        markDefs: null;
+      }
+    | {
+        quote?: string;
+        attribution?: string;
+        _type: "pullQuote";
+        _key: string;
+        markDefs: null;
+      }
+    | {
+        items?: Array<{
+          value?: string;
+          label?: string;
+          _type: "stat";
+          _key: string;
+        }>;
+        _type: "stats";
+        _key: string;
+        markDefs: null;
+      }
   > | null;
   coaches: Array<{
     _id: string;
@@ -3733,6 +4172,7 @@ export type DISCIPLINE_QUERY_RESULT = {
     discipline:
       | "advanced-crossfit"
       | "crossfit"
+      | "gymnastics"
       | "hyrox"
       | "open-gym"
       | "personal-training"
@@ -3779,6 +4219,7 @@ export type DISCIPLINE_QUERY_RESULT = {
     key:
       | "advanced-crossfit"
       | "crossfit"
+      | "gymnastics"
       | "hyrox"
       | "open-gym"
       | "personal-training"
@@ -3831,7 +4272,14 @@ export type DISCIPLINE_QUERY_RESULT = {
     language: string | null;
     title: string | null;
     slug: string | null;
-    postType: "change" | "community" | "event" | "news" | null;
+    postType:
+      | "change"
+      | "community"
+      | "event"
+      | "news"
+      | "nutrition"
+      | "training"
+      | null;
     publishedAt: string | null;
     summary: string | null;
     heroImage: {
@@ -3841,6 +4289,19 @@ export type DISCIPLINE_QUERY_RESULT = {
       alt: string | null;
       lqip: string | null;
       dimensions: SanityImageDimensions | null;
+    } | null;
+    textLength: number;
+    author: {
+      name: string | null;
+      role: string | null;
+      photo: {
+        asset: SanityImageAssetReference | null;
+        hotspot: SanityImageHotspot | null;
+        crop: SanityImageCrop | null;
+        alt: string | null;
+        lqip: string | null;
+        dimensions: SanityImageDimensions | null;
+      } | null;
     } | null;
   }>;
   sportbitClassNames: Array<string> | null;
@@ -3877,7 +4338,7 @@ export type DISCIPLINE_QUERY_RESULT = {
 
 // Source: ../web/src/sanity/queries.ts
 // Variable: PROGRAM_QUERY
-// Query: *[_type == "program" && language == $lang && slug.current == $slug][0]{  _id,  _type,  _updatedAt,  language,  title,  "slug": slug.current,  programType,  discipline,  heading,  summary,  heroImage{  asset,  hotspot,  crop,  alt,  "lqip": asset->metadata.lqip,  "dimensions": asset->metadata.dimensions},  "body": body[]{  ...,  markDefs[]{    ...,    _type == "internalLink" => {"reference": reference->{_type, language, slug}}  }},  includes,  startDate,  endDate,  sessions[]{_key, label, value},  sessionCount,  participants,  price,  signupUrl,  "faqs": faqs[]->{_id, question, answer},  seo,  "translations": *[_type == "translation.metadata" && references(^._id)][0].translations[].value->{  _type,  language,  "slug": slug.current}}
+// Query: *[_type == "program" && language == $lang && slug.current == $slug][0]{  _id,  _type,  _updatedAt,  language,  title,  "slug": slug.current,  programType,  discipline,  heading,  summary,  heroImage{  asset,  hotspot,  crop,  alt,  "lqip": asset->metadata.lqip,  "dimensions": asset->metadata.dimensions},  "body": body[]{  ...,  _type == "inlineCta" => {heading, text, "link": link{  label,  linkType,  url,  emoji,  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}}},  markDefs[]{    ...,    _type == "internalLink" => {"reference": reference->{_type, language, slug}}  }},  includes,  startDate,  endDate,  sessions[]{_key, label, value},  sessionCount,  participants,  price,  signupUrl,  "faqs": faqs[]->{_id, question, answer},  seo,  "translations": *[_type == "translation.metadata" && references(^._id)][0].translations[].value->{  _type,  language,  "slug": slug.current}}
 export type PROGRAM_QUERY_RESULT = {
   _id: string;
   _type: "program";
@@ -3889,6 +4350,7 @@ export type PROGRAM_QUERY_RESULT = {
   discipline:
     | "advanced-crossfit"
     | "crossfit"
+    | "gymnastics"
     | "hyrox"
     | "open-gym"
     | "personal-training"
@@ -3961,6 +4423,93 @@ export type PROGRAM_QUERY_RESULT = {
         crop?: SanityImageCrop;
         alt?: string;
         _type: "image";
+        _key: string;
+        markDefs: null;
+      }
+    | {
+        images?: Array<
+          {
+            _key: string;
+          } & ImageWithAlt
+        >;
+        _type: "imagePair";
+        _key: string;
+        markDefs: null;
+      }
+    | {
+        heading: string | null;
+        text: string | null;
+        link: {
+          label: string | null;
+          linkType: "external" | "internal" | "trial" | null;
+          url: string | null;
+          emoji: string | null;
+          internal:
+            | {
+                _type: "discipline";
+                language: string | null;
+                slug: string | null;
+                emoji: string | null;
+                pageType: null;
+              }
+            | {
+                _type: "homePage";
+                language: string | null;
+                slug: null;
+                emoji: null;
+                pageType: null;
+              }
+            | {
+                _type: "page";
+                language: string | null;
+                slug: string | null;
+                emoji: null;
+                pageType:
+                  | "about"
+                  | "blog"
+                  | "collection"
+                  | "contact"
+                  | "legal"
+                  | "pricing"
+                  | "schedule"
+                  | "standard"
+                  | null;
+              }
+            | {
+                _type: "post";
+                language: string | null;
+                slug: string | null;
+                emoji: null;
+                pageType: null;
+              }
+            | {
+                _type: "program";
+                language: string | null;
+                slug: string | null;
+                emoji: null;
+                pageType: null;
+              }
+            | null;
+        } | null;
+        _type: "inlineCta";
+        _key: string;
+        markDefs: null;
+      }
+    | {
+        quote?: string;
+        attribution?: string;
+        _type: "pullQuote";
+        _key: string;
+        markDefs: null;
+      }
+    | {
+        items?: Array<{
+          value?: string;
+          label?: string;
+          _type: "stat";
+          _key: string;
+        }>;
+        _type: "stats";
         _key: string;
         markDefs: null;
       }
@@ -4038,7 +4587,7 @@ export type PROGRAM_QUERY_RESULT = {
 
 // Source: ../web/src/sanity/queries.ts
 // Variable: POST_QUERY
-// Query: *[_type == "post" && language == $lang && slug.current == $slug][0]{  _id,  _type,  _updatedAt,  language,  title,  "slug": slug.current,  postType,  publishedAt,  relevantUntil,  "isCurrent": (!defined(relevantUntil) || relevantUntil >= string::split(string(now()), "T")[0]),  summary,  heroImage{  asset,  hotspot,  crop,  alt,  "lqip": asset->metadata.lqip,  "dimensions": asset->metadata.dimensions},  "body": body[]{  ...,  markDefs[]{    ...,    _type == "internalLink" => {"reference": reference->{_type, language, slug}}  }},  "author": author->{  _id,  name,  "role": coalesce(role[language == $lang][0].value, role[language == "nl"][0].value),  "bio": coalesce(bio[language == $lang][0].value, bio[language == "nl"][0].value),  specialties,  certifications,  instagram,  photo{  asset,  hotspot,  crop,  alt,  "lqip": asset->metadata.lqip,  "dimensions": asset->metadata.dimensions}},  "program": program->{_type, language, title, "slug": slug.current, startDate},  seo,  "translations": *[_type == "translation.metadata" && references(^._id)][0].translations[].value->{  _type,  language,  "slug": slug.current}}
+// Query: *[_type == "post" && language == $lang && slug.current == $slug][0]{  _id,  _type,  _updatedAt,  language,  title,  "slug": slug.current,  postType,  publishedAt,  relevantUntil,  "isCurrent": (!defined(relevantUntil) || relevantUntil >= string::split(string(now()), "T")[0]),  titleEmphasis,  summary,  heroImage{  asset,  hotspot,  crop,  alt,  "lqip": asset->metadata.lqip,  "dimensions": asset->metadata.dimensions},  heroCaption,  tags,  "body": body[]{  ...,  _type == "inlineCta" => {heading, text, "link": link{  label,  linkType,  url,  emoji,  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}}},  markDefs[]{    ...,    _type == "internalLink" => {"reference": reference->{_type, language, slug}}  }},  "textLength": length(pt::text(body)),  // Same kind first, then the newest others.  "related": *[_type == "post" && language == $lang && _id != ^._id && defined(slug.current) && (!defined(relevantUntil) || relevantUntil >= string::split(string(now()), "T")[0])]    | order(select(postType == ^.postType => 0, 1) asc, publishedAt desc)[0...3]{  _id,  _type,  language,  title,  "slug": slug.current,  postType,  publishedAt,  summary,  heroImage{  asset,  hotspot,  crop,  alt,  "lqip": asset->metadata.lqip,  "dimensions": asset->metadata.dimensions},  // For the reading time (characters of the body text).  "textLength": length(pt::text(body)),  "author": author->{name, "role": coalesce(role[language == $lang][0].value, role[language == "nl"][0].value), photo{  asset,  hotspot,  crop,  alt,  "lqip": asset->metadata.lqip,  "dimensions": asset->metadata.dimensions}}},  "author": author->{  _id,  name,  "role": coalesce(role[language == $lang][0].value, role[language == "nl"][0].value),  "bio": coalesce(bio[language == $lang][0].value, bio[language == "nl"][0].value),  specialties,  certifications,  instagram,  photo{  asset,  hotspot,  crop,  alt,  "lqip": asset->metadata.lqip,  "dimensions": asset->metadata.dimensions}},  "program": program->{_type, language, title, "slug": slug.current, startDate},  seo,  "translations": *[_type == "translation.metadata" && references(^._id)][0].translations[].value->{  _type,  language,  "slug": slug.current}}
 export type POST_QUERY_RESULT = {
   _id: string;
   _type: "post";
@@ -4046,10 +4595,12 @@ export type POST_QUERY_RESULT = {
   language: string | null;
   title: string | null;
   slug: string | null;
-  postType: "change" | "community" | "event" | "news" | null;
+  postType:
+    "change" | "community" | "event" | "news" | "nutrition" | "training" | null;
   publishedAt: string | null;
   relevantUntil: string | null;
   isCurrent: boolean | true | null;
+  titleEmphasis: string | null;
   summary: string | null;
   heroImage: {
     asset: SanityImageAssetReference | null;
@@ -4059,6 +4610,8 @@ export type POST_QUERY_RESULT = {
     lqip: string | null;
     dimensions: SanityImageDimensions | null;
   } | null;
+  heroCaption: string | null;
+  tags: Array<string> | null;
   body: Array<
     | {
         children?: Array<{
@@ -4116,7 +4669,133 @@ export type POST_QUERY_RESULT = {
         _key: string;
         markDefs: null;
       }
+    | {
+        images?: Array<
+          {
+            _key: string;
+          } & ImageWithAlt
+        >;
+        _type: "imagePair";
+        _key: string;
+        markDefs: null;
+      }
+    | {
+        heading: string | null;
+        text: string | null;
+        link: {
+          label: string | null;
+          linkType: "external" | "internal" | "trial" | null;
+          url: string | null;
+          emoji: string | null;
+          internal:
+            | {
+                _type: "discipline";
+                language: string | null;
+                slug: string | null;
+                emoji: string | null;
+                pageType: null;
+              }
+            | {
+                _type: "homePage";
+                language: string | null;
+                slug: null;
+                emoji: null;
+                pageType: null;
+              }
+            | {
+                _type: "page";
+                language: string | null;
+                slug: string | null;
+                emoji: null;
+                pageType:
+                  | "about"
+                  | "blog"
+                  | "collection"
+                  | "contact"
+                  | "legal"
+                  | "pricing"
+                  | "schedule"
+                  | "standard"
+                  | null;
+              }
+            | {
+                _type: "post";
+                language: string | null;
+                slug: string | null;
+                emoji: null;
+                pageType: null;
+              }
+            | {
+                _type: "program";
+                language: string | null;
+                slug: string | null;
+                emoji: null;
+                pageType: null;
+              }
+            | null;
+        } | null;
+        _type: "inlineCta";
+        _key: string;
+        markDefs: null;
+      }
+    | {
+        quote?: string;
+        attribution?: string;
+        _type: "pullQuote";
+        _key: string;
+        markDefs: null;
+      }
+    | {
+        items?: Array<{
+          value?: string;
+          label?: string;
+          _type: "stat";
+          _key: string;
+        }>;
+        _type: "stats";
+        _key: string;
+        markDefs: null;
+      }
   > | null;
+  textLength: number;
+  related: Array<{
+    _id: string;
+    _type: "post";
+    language: string | null;
+    title: string | null;
+    slug: string | null;
+    postType:
+      | "change"
+      | "community"
+      | "event"
+      | "news"
+      | "nutrition"
+      | "training"
+      | null;
+    publishedAt: string | null;
+    summary: string | null;
+    heroImage: {
+      asset: SanityImageAssetReference | null;
+      hotspot: SanityImageHotspot | null;
+      crop: SanityImageCrop | null;
+      alt: string | null;
+      lqip: string | null;
+      dimensions: SanityImageDimensions | null;
+    } | null;
+    textLength: number;
+    author: {
+      name: string | null;
+      role: string | null;
+      photo: {
+        asset: SanityImageAssetReference | null;
+        hotspot: SanityImageHotspot | null;
+        crop: SanityImageCrop | null;
+        alt: string | null;
+        lqip: string | null;
+        dimensions: SanityImageDimensions | null;
+      } | null;
+    } | null;
+  }>;
   author: {
     _id: string;
     name: string | null;
@@ -4372,11 +5051,11 @@ declare global {
   interface SanityQueries {
     '*[_type == "settings" && _id == "settings"][0]{\n  siteName,\n  siteUrl,\n  logo,\n  "description": coalesce(description[language == $lang][0].value, description[language == "nl"][0].value),\n  address{street, postalCode, city, country, "directions": coalesce(directions[language == $lang][0].value, directions[language == "nl"][0].value)},\n  geo,\n  mapsUrl,\n  email,\n  phone,\n  openingHours[]{days, opens, closes},\n  socials,\n  "facilities": coalesce(facilities[language == $lang][0].value, facilities[language == "nl"][0].value),\n  loginUrl,\n  reviewsUrl,\n  trialUrl,\n  scheduleUrl,\n  annualDiscountPercent,\n  rating,\n  defaultSeoImage,\n  "memberships": *[_type == "membership"] | order(orderRank asc){\n  _id,\n  name,\n  membershipType,\n  price,\n  priceInterval,\n  credits,\n  validityMonths,\n  access,\n  signupUrl,\n  featured,\n  emoji,\n  "tagline": coalesce(tagline[language == $lang][0].value, tagline[language == "nl"][0].value),\n  "badge": coalesce(badge[language == $lang][0].value, badge[language == "nl"][0].value)\n}\n}': SETTINGS_QUERY_RESULT;
     '*[_type == "navigation" && _id == "navigation-" + $lang][0]{\n  announcement,\n  classesMenu{\n    label,\n    "overview": overview->{_type, language, "slug": slug.current},\n    "items": *[_type == "discipline" && language == $lang && defined(slug.current)] | order(orderRank asc){\n      _id, _type, language, title, emoji, "slug": slug.current, tagline, audienceLabel, "image": coalesce(cardImage, heroImage){\n  asset,\n  hotspot,\n  crop,\n  alt,\n  "lqip": asset->metadata.lqip,\n  "dimensions": asset->metadata.dimensions\n}\n    },\n    quickLinksTitle,\n    quickLinks[]{_key, link{\n  label,\n  linkType,\n  url,\n  emoji,\n  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}\n}, description},\n    promo{chips, heading, text, link{\n  label,\n  linkType,\n  url,\n  emoji,\n  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}\n}},\n    eventsLink{\n  label,\n  linkType,\n  url,\n  emoji,\n  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}\n},\n    "nextEvent": *[_type == "program" && language == $lang && defined(slug.current) && defined(heroImage.asset) && startDate >= now()] | order(startDate asc)[0]{\n        _id, _type, language, title, "slug": slug.current, summary, "image": heroImage{\n  asset,\n  hotspot,\n  crop,\n  alt,\n  "lqip": asset->metadata.lqip,\n  "dimensions": asset->metadata.dimensions\n}\n    },\n    "latestPost": *[_type == "post" && language == $lang && defined(slug.current) && defined(heroImage.asset) && (!defined(relevantUntil) || relevantUntil >= string::split(string(now()), "T")[0])] | order(publishedAt desc)[0]{\n        _id, _type, language, title, "slug": slug.current, summary, "image": heroImage{\n  asset,\n  hotspot,\n  crop,\n  alt,\n  "lqip": asset->metadata.lqip,\n  "dimensions": asset->metadata.dimensions\n}\n    }\n  },\n  header[]{\n  label,\n  linkType,\n  url,\n  emoji,\n  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}\n},\n  headerCta{\n  label,\n  linkType,\n  url,\n  emoji,\n  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}\n},\n  footerColumns[]{_key, title, links[]{\n  label,\n  linkType,\n  url,\n  emoji,\n  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}\n}},\n  legal[]{\n  label,\n  linkType,\n  url,\n  emoji,\n  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}\n},\n  footerText,\n  footerBadges,\n  slogan\n}': NAVIGATION_QUERY_RESULT;
-    '*[_type == "homePage" && _id == "homePage-" + $lang][0]{\n  _id,\n  _type,\n  _updatedAt,\n  language,\n  seo,\n  sections[]{\n  _key,\n  _type,\n  heading,\n  intro,\n  _type == "heroSection" => {eyebrow, showRating, trustItems[]{_key, _type, label, value, name, "logo": logo.asset->{url, "width": metadata.dimensions.width, "height": metadata.dimensions.height}}, image{\n  asset,\n  hotspot,\n  crop,\n  alt,\n  "lqip": asset->metadata.lqip,\n  "dimensions": asset->metadata.dimensions\n}, primaryCta{\n  label,\n  linkType,\n  url,\n  emoji,\n  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}\n}, secondaryCta{\n  label,\n  linkType,\n  url,\n  emoji,\n  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}\n}},\n  _type == "introSection" => {primaryCta{\n  label,\n  linkType,\n  url,\n  emoji,\n  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}\n}, secondaryCta{\n  label,\n  linkType,\n  url,\n  emoji,\n  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}\n}, image{\n  asset,\n  hotspot,\n  crop,\n  alt,\n  "lqip": asset->metadata.lqip,\n  "dimensions": asset->metadata.dimensions\n}},\n  _type == "storySection" => {lead, body, card},\n  _type == "valuesSection" => {values[]{_key, title, description}},\n  _type == "statementSection" => {text, closing},\n  _type == "marqueeSection" => {"items": *[_type == "discipline" && language == $lang] | order(orderRank asc){_id, title}},\n  _type == "disciplinesSection" => {\n    cta{\n  label,\n  linkType,\n  url,\n  emoji,\n  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}\n},\n    "items": select(\n      count(disciplines) > 0 => disciplines[]->{\n  _id,\n  _type,\n  language,\n  key,\n  title,\n  "slug": slug.current,\n  summary,\n  tagline,\n  audienceLabel,\n  emoji,\n  "image": coalesce(cardImage, heroImage){\n  asset,\n  hotspot,\n  crop,\n  alt,\n  "lqip": asset->metadata.lqip,\n  "dimensions": asset->metadata.dimensions\n}\n},\n      *[_type == "discipline" && language == $lang] | order(orderRank asc){\n  _id,\n  _type,\n  language,\n  key,\n  title,\n  "slug": slug.current,\n  summary,\n  tagline,\n  audienceLabel,\n  emoji,\n  "image": coalesce(cardImage, heroImage){\n  asset,\n  hotspot,\n  crop,\n  alt,\n  "lqip": asset->metadata.lqip,\n  "dimensions": asset->metadata.dimensions\n}\n}\n    )\n  },\n  _type == "stepsSection" => {steps[]{_key, title, description}, cta{\n  label,\n  linkType,\n  url,\n  emoji,\n  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}\n}},\n  _type == "scheduleSection" => {discipline},\n  _type == "testimonialsSection" => {showRating, "items": testimonials[]->{_id, quote, quoteLanguage, authorName, memberSince, discipline, photo{\n  asset,\n  hotspot,\n  crop,\n  alt,\n  "lqip": asset->metadata.lqip,\n  "dimensions": asset->metadata.dimensions\n}}},\n  _type == "pricingSection" => {\n    "items": select(\n      count(memberships) > 0 => memberships[]->{\n  _id,\n  name,\n  membershipType,\n  price,\n  priceInterval,\n  credits,\n  validityMonths,\n  access,\n  signupUrl,\n  featured,\n  emoji,\n  "tagline": coalesce(tagline[language == $lang][0].value, tagline[language == "nl"][0].value),\n  "badge": coalesce(badge[language == $lang][0].value, badge[language == "nl"][0].value)\n},\n      *[_type == "membership" && coalesce(membershipType, "subscription") == "subscription"] | order(orderRank asc){\n  _id,\n  name,\n  membershipType,\n  price,\n  priceInterval,\n  credits,\n  validityMonths,\n  access,\n  signupUrl,\n  featured,\n  emoji,\n  "tagline": coalesce(tagline[language == $lang][0].value, tagline[language == "nl"][0].value),\n  "badge": coalesce(badge[language == $lang][0].value, badge[language == "nl"][0].value)\n}\n    ),\n    "punchCard": coalesce(punchCard->{\n  _id,\n  name,\n  membershipType,\n  price,\n  priceInterval,\n  credits,\n  validityMonths,\n  access,\n  signupUrl,\n  featured,\n  emoji,\n  "tagline": coalesce(tagline[language == $lang][0].value, tagline[language == "nl"][0].value),\n  "badge": coalesce(badge[language == $lang][0].value, badge[language == "nl"][0].value)\n}, *[_type == "membership" && membershipType == "punchCard"] | order(orderRank asc)[0]{\n  _id,\n  name,\n  membershipType,\n  price,\n  priceInterval,\n  credits,\n  validityMonths,\n  access,\n  signupUrl,\n  featured,\n  emoji,\n  "tagline": coalesce(tagline[language == $lang][0].value, tagline[language == "nl"][0].value),\n  "badge": coalesce(badge[language == $lang][0].value, badge[language == "nl"][0].value)\n}),\n    footnote,\n    secondaryCta{\n  label,\n  linkType,\n  url,\n  emoji,\n  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}\n},\n    cta{\n  label,\n  linkType,\n  url,\n  emoji,\n  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}\n}\n  },\n  _type == "faqSection" => {showContactInfo, image{\n  asset,\n  hotspot,\n  crop,\n  alt,\n  "lqip": asset->metadata.lqip,\n  "dimensions": asset->metadata.dimensions\n}, cta{\n  label,\n  linkType,\n  url,\n  emoji,\n  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}\n}, "items": faqs[]->{_id, question, answer}},\n  _type == "coachesSection" => {\n    "items": select(\n      count(coaches) > 0 => coaches[]->{\n  _id,\n  name,\n  "role": coalesce(role[language == $lang][0].value, role[language == "nl"][0].value),\n  "bio": coalesce(bio[language == $lang][0].value, bio[language == "nl"][0].value),\n  specialties,\n  certifications,\n  instagram,\n  photo{\n  asset,\n  hotspot,\n  crop,\n  alt,\n  "lqip": asset->metadata.lqip,\n  "dimensions": asset->metadata.dimensions\n}\n},\n      *[_type == "coach"] | order(orderRank asc){\n  _id,\n  name,\n  "role": coalesce(role[language == $lang][0].value, role[language == "nl"][0].value),\n  "bio": coalesce(bio[language == $lang][0].value, bio[language == "nl"][0].value),\n  specialties,\n  certifications,\n  instagram,\n  photo{\n  asset,\n  hotspot,\n  crop,\n  alt,\n  "lqip": asset->metadata.lqip,\n  "dimensions": asset->metadata.dimensions\n}\n}\n    )\n  },\n  _type == "newsSection" => {\n    "items": *[\n      _type == "post" && language == $lang && defined(slug.current) && (!defined(relevantUntil) || relevantUntil >= string::split(string(now()), "T")[0]) &&\n      (!defined(^.postType) || postType == ^.postType)\n    ] | order(publishedAt desc)[0...12]{\n  _id,\n  _type,\n  language,\n  title,\n  "slug": slug.current,\n  postType,\n  publishedAt,\n  summary,\n  heroImage{\n  asset,\n  hotspot,\n  crop,\n  alt,\n  "lqip": asset->metadata.lqip,\n  "dimensions": asset->metadata.dimensions\n}\n},\n    limit\n  },\n  _type == "ctaSection" => {cta{\n  label,\n  linkType,\n  url,\n  emoji,\n  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}\n}, note},\n  _type == "textSection" => {"body": body[]{\n  ...,\n  markDefs[]{\n    ...,\n    _type == "internalLink" => {"reference": reference->{_type, language, slug}}\n  }\n}}\n}\n}': HOME_QUERY_RESULT;
-    '*[_type == "page" && language == $lang && slug.current == $slug][0]{\n  _id,\n  _type,\n  _updatedAt,\n  language,\n  title,\n  "slug": slug.current,\n  pageType,\n  summary,\n  "body": body[]{\n  ...,\n  markDefs[]{\n    ...,\n    _type == "internalLink" => {"reference": reference->{_type, language, slug}}\n  }\n},\n  seo,\n  sections[]{\n  _key,\n  _type,\n  heading,\n  intro,\n  _type == "heroSection" => {eyebrow, showRating, trustItems[]{_key, _type, label, value, name, "logo": logo.asset->{url, "width": metadata.dimensions.width, "height": metadata.dimensions.height}}, image{\n  asset,\n  hotspot,\n  crop,\n  alt,\n  "lqip": asset->metadata.lqip,\n  "dimensions": asset->metadata.dimensions\n}, primaryCta{\n  label,\n  linkType,\n  url,\n  emoji,\n  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}\n}, secondaryCta{\n  label,\n  linkType,\n  url,\n  emoji,\n  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}\n}},\n  _type == "introSection" => {primaryCta{\n  label,\n  linkType,\n  url,\n  emoji,\n  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}\n}, secondaryCta{\n  label,\n  linkType,\n  url,\n  emoji,\n  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}\n}, image{\n  asset,\n  hotspot,\n  crop,\n  alt,\n  "lqip": asset->metadata.lqip,\n  "dimensions": asset->metadata.dimensions\n}},\n  _type == "storySection" => {lead, body, card},\n  _type == "valuesSection" => {values[]{_key, title, description}},\n  _type == "statementSection" => {text, closing},\n  _type == "marqueeSection" => {"items": *[_type == "discipline" && language == $lang] | order(orderRank asc){_id, title}},\n  _type == "disciplinesSection" => {\n    cta{\n  label,\n  linkType,\n  url,\n  emoji,\n  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}\n},\n    "items": select(\n      count(disciplines) > 0 => disciplines[]->{\n  _id,\n  _type,\n  language,\n  key,\n  title,\n  "slug": slug.current,\n  summary,\n  tagline,\n  audienceLabel,\n  emoji,\n  "image": coalesce(cardImage, heroImage){\n  asset,\n  hotspot,\n  crop,\n  alt,\n  "lqip": asset->metadata.lqip,\n  "dimensions": asset->metadata.dimensions\n}\n},\n      *[_type == "discipline" && language == $lang] | order(orderRank asc){\n  _id,\n  _type,\n  language,\n  key,\n  title,\n  "slug": slug.current,\n  summary,\n  tagline,\n  audienceLabel,\n  emoji,\n  "image": coalesce(cardImage, heroImage){\n  asset,\n  hotspot,\n  crop,\n  alt,\n  "lqip": asset->metadata.lqip,\n  "dimensions": asset->metadata.dimensions\n}\n}\n    )\n  },\n  _type == "stepsSection" => {steps[]{_key, title, description}, cta{\n  label,\n  linkType,\n  url,\n  emoji,\n  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}\n}},\n  _type == "scheduleSection" => {discipline},\n  _type == "testimonialsSection" => {showRating, "items": testimonials[]->{_id, quote, quoteLanguage, authorName, memberSince, discipline, photo{\n  asset,\n  hotspot,\n  crop,\n  alt,\n  "lqip": asset->metadata.lqip,\n  "dimensions": asset->metadata.dimensions\n}}},\n  _type == "pricingSection" => {\n    "items": select(\n      count(memberships) > 0 => memberships[]->{\n  _id,\n  name,\n  membershipType,\n  price,\n  priceInterval,\n  credits,\n  validityMonths,\n  access,\n  signupUrl,\n  featured,\n  emoji,\n  "tagline": coalesce(tagline[language == $lang][0].value, tagline[language == "nl"][0].value),\n  "badge": coalesce(badge[language == $lang][0].value, badge[language == "nl"][0].value)\n},\n      *[_type == "membership" && coalesce(membershipType, "subscription") == "subscription"] | order(orderRank asc){\n  _id,\n  name,\n  membershipType,\n  price,\n  priceInterval,\n  credits,\n  validityMonths,\n  access,\n  signupUrl,\n  featured,\n  emoji,\n  "tagline": coalesce(tagline[language == $lang][0].value, tagline[language == "nl"][0].value),\n  "badge": coalesce(badge[language == $lang][0].value, badge[language == "nl"][0].value)\n}\n    ),\n    "punchCard": coalesce(punchCard->{\n  _id,\n  name,\n  membershipType,\n  price,\n  priceInterval,\n  credits,\n  validityMonths,\n  access,\n  signupUrl,\n  featured,\n  emoji,\n  "tagline": coalesce(tagline[language == $lang][0].value, tagline[language == "nl"][0].value),\n  "badge": coalesce(badge[language == $lang][0].value, badge[language == "nl"][0].value)\n}, *[_type == "membership" && membershipType == "punchCard"] | order(orderRank asc)[0]{\n  _id,\n  name,\n  membershipType,\n  price,\n  priceInterval,\n  credits,\n  validityMonths,\n  access,\n  signupUrl,\n  featured,\n  emoji,\n  "tagline": coalesce(tagline[language == $lang][0].value, tagline[language == "nl"][0].value),\n  "badge": coalesce(badge[language == $lang][0].value, badge[language == "nl"][0].value)\n}),\n    footnote,\n    secondaryCta{\n  label,\n  linkType,\n  url,\n  emoji,\n  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}\n},\n    cta{\n  label,\n  linkType,\n  url,\n  emoji,\n  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}\n}\n  },\n  _type == "faqSection" => {showContactInfo, image{\n  asset,\n  hotspot,\n  crop,\n  alt,\n  "lqip": asset->metadata.lqip,\n  "dimensions": asset->metadata.dimensions\n}, cta{\n  label,\n  linkType,\n  url,\n  emoji,\n  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}\n}, "items": faqs[]->{_id, question, answer}},\n  _type == "coachesSection" => {\n    "items": select(\n      count(coaches) > 0 => coaches[]->{\n  _id,\n  name,\n  "role": coalesce(role[language == $lang][0].value, role[language == "nl"][0].value),\n  "bio": coalesce(bio[language == $lang][0].value, bio[language == "nl"][0].value),\n  specialties,\n  certifications,\n  instagram,\n  photo{\n  asset,\n  hotspot,\n  crop,\n  alt,\n  "lqip": asset->metadata.lqip,\n  "dimensions": asset->metadata.dimensions\n}\n},\n      *[_type == "coach"] | order(orderRank asc){\n  _id,\n  name,\n  "role": coalesce(role[language == $lang][0].value, role[language == "nl"][0].value),\n  "bio": coalesce(bio[language == $lang][0].value, bio[language == "nl"][0].value),\n  specialties,\n  certifications,\n  instagram,\n  photo{\n  asset,\n  hotspot,\n  crop,\n  alt,\n  "lqip": asset->metadata.lqip,\n  "dimensions": asset->metadata.dimensions\n}\n}\n    )\n  },\n  _type == "newsSection" => {\n    "items": *[\n      _type == "post" && language == $lang && defined(slug.current) && (!defined(relevantUntil) || relevantUntil >= string::split(string(now()), "T")[0]) &&\n      (!defined(^.postType) || postType == ^.postType)\n    ] | order(publishedAt desc)[0...12]{\n  _id,\n  _type,\n  language,\n  title,\n  "slug": slug.current,\n  postType,\n  publishedAt,\n  summary,\n  heroImage{\n  asset,\n  hotspot,\n  crop,\n  alt,\n  "lqip": asset->metadata.lqip,\n  "dimensions": asset->metadata.dimensions\n}\n},\n    limit\n  },\n  _type == "ctaSection" => {cta{\n  label,\n  linkType,\n  url,\n  emoji,\n  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}\n}, note},\n  _type == "textSection" => {"body": body[]{\n  ...,\n  markDefs[]{\n    ...,\n    _type == "internalLink" => {"reference": reference->{_type, language, slug}}\n  }\n}}\n},\n  "translations": *[_type == "translation.metadata" && references(^._id)][0].translations[].value->{\n  _type,\n  language,\n  "slug": slug.current\n}\n}': PAGE_QUERY_RESULT;
-    '*[_type == "discipline" && language == $lang && slug.current == $slug][0]{\n  _id,\n  _type,\n  _updatedAt,\n  language,\n  key,\n  title,\n  "slug": slug.current,\n  heading,\n  summary,\n  heroImage{\n  asset,\n  hotspot,\n  crop,\n  alt,\n  "lqip": asset->metadata.lqip,\n  "dimensions": asset->metadata.dimensions\n},\n  level,\n  durationMinutes,\n  maxGroupSize,\n  bookingType,\n  extraFacts[]{_key, label, value},\n  essentials{heading, intro, image{\n  asset,\n  hotspot,\n  crop,\n  alt,\n  "lqip": asset->metadata.lqip,\n  "dimensions": asset->metadata.dimensions\n}, items[]{_key, title, description}},\n  benefits,\n  lessonOutline,\n  "body": body[]{\n  ...,\n  markDefs[]{\n    ...,\n    _type == "internalLink" => {"reference": reference->{_type, language, slug}}\n  }\n},\n  "coaches": select(\n    count(coaches) > 0 => coaches[]->{\n  _id,\n  name,\n  "role": coalesce(role[language == $lang][0].value, role[language == "nl"][0].value),\n  "bio": coalesce(bio[language == $lang][0].value, bio[language == "nl"][0].value),\n  specialties,\n  certifications,\n  instagram,\n  photo{\n  asset,\n  hotspot,\n  crop,\n  alt,\n  "lqip": asset->metadata.lqip,\n  "dimensions": asset->metadata.dimensions\n}\n},\n    *[_type == "coach" && ^.key in specialties] | order(orderRank asc){\n  _id,\n  name,\n  "role": coalesce(role[language == $lang][0].value, role[language == "nl"][0].value),\n  "bio": coalesce(bio[language == $lang][0].value, bio[language == "nl"][0].value),\n  specialties,\n  certifications,\n  instagram,\n  photo{\n  asset,\n  hotspot,\n  crop,\n  alt,\n  "lqip": asset->metadata.lqip,\n  "dimensions": asset->metadata.dimensions\n}\n}\n  ),\n  "testimonial": testimonial->{_id, quote, quoteLanguage, authorName, memberSince, discipline, photo{\n  asset,\n  hotspot,\n  crop,\n  alt,\n  "lqip": asset->metadata.lqip,\n  "dimensions": asset->metadata.dimensions\n}},\n  "faqs": faqs[]->{_id, question, answer},\n  "related": related[]->{\n  _id,\n  _type,\n  language,\n  key,\n  title,\n  "slug": slug.current,\n  summary,\n  tagline,\n  audienceLabel,\n  emoji,\n  "image": coalesce(cardImage, heroImage){\n  asset,\n  hotspot,\n  crop,\n  alt,\n  "lqip": asset->metadata.lqip,\n  "dimensions": asset->metadata.dimensions\n}\n},\n  promise{label, quote, "coach": coach->{\n  _id,\n  name,\n  "role": coalesce(role[language == $lang][0].value, role[language == "nl"][0].value),\n  "bio": coalesce(bio[language == $lang][0].value, bio[language == "nl"][0].value),\n  specialties,\n  certifications,\n  instagram,\n  photo{\n  asset,\n  hotspot,\n  crop,\n  alt,\n  "lqip": asset->metadata.lqip,\n  "dimensions": asset->metadata.dimensions\n}\n}},\n  faqHeading,\n  ctaText,\n  "news": *[_type == "post" && language == $lang && ^.key in disciplines && (!defined(relevantUntil) || relevantUntil >= string::split(string(now()), "T")[0])] | order(publishedAt desc)[0...3]{\n  _id,\n  _type,\n  language,\n  title,\n  "slug": slug.current,\n  postType,\n  publishedAt,\n  summary,\n  heroImage{\n  asset,\n  hotspot,\n  crop,\n  alt,\n  "lqip": asset->metadata.lqip,\n  "dimensions": asset->metadata.dimensions\n}\n},\n  sportbitClassNames,\n  seo,\n  "translations": *[_type == "translation.metadata" && references(^._id)][0].translations[].value->{\n  _type,\n  language,\n  "slug": slug.current\n}\n}': DISCIPLINE_QUERY_RESULT;
-    '*[_type == "program" && language == $lang && slug.current == $slug][0]{\n  _id,\n  _type,\n  _updatedAt,\n  language,\n  title,\n  "slug": slug.current,\n  programType,\n  discipline,\n  heading,\n  summary,\n  heroImage{\n  asset,\n  hotspot,\n  crop,\n  alt,\n  "lqip": asset->metadata.lqip,\n  "dimensions": asset->metadata.dimensions\n},\n  "body": body[]{\n  ...,\n  markDefs[]{\n    ...,\n    _type == "internalLink" => {"reference": reference->{_type, language, slug}}\n  }\n},\n  includes,\n  startDate,\n  endDate,\n  sessions[]{_key, label, value},\n  sessionCount,\n  participants,\n  price,\n  signupUrl,\n  "faqs": faqs[]->{_id, question, answer},\n  seo,\n  "translations": *[_type == "translation.metadata" && references(^._id)][0].translations[].value->{\n  _type,\n  language,\n  "slug": slug.current\n}\n}': PROGRAM_QUERY_RESULT;
-    '*[_type == "post" && language == $lang && slug.current == $slug][0]{\n  _id,\n  _type,\n  _updatedAt,\n  language,\n  title,\n  "slug": slug.current,\n  postType,\n  publishedAt,\n  relevantUntil,\n  "isCurrent": (!defined(relevantUntil) || relevantUntil >= string::split(string(now()), "T")[0]),\n  summary,\n  heroImage{\n  asset,\n  hotspot,\n  crop,\n  alt,\n  "lqip": asset->metadata.lqip,\n  "dimensions": asset->metadata.dimensions\n},\n  "body": body[]{\n  ...,\n  markDefs[]{\n    ...,\n    _type == "internalLink" => {"reference": reference->{_type, language, slug}}\n  }\n},\n  "author": author->{\n  _id,\n  name,\n  "role": coalesce(role[language == $lang][0].value, role[language == "nl"][0].value),\n  "bio": coalesce(bio[language == $lang][0].value, bio[language == "nl"][0].value),\n  specialties,\n  certifications,\n  instagram,\n  photo{\n  asset,\n  hotspot,\n  crop,\n  alt,\n  "lqip": asset->metadata.lqip,\n  "dimensions": asset->metadata.dimensions\n}\n},\n  "program": program->{_type, language, title, "slug": slug.current, startDate},\n  seo,\n  "translations": *[_type == "translation.metadata" && references(^._id)][0].translations[].value->{\n  _type,\n  language,\n  "slug": slug.current\n}\n}': POST_QUERY_RESULT;
+    '*[_type == "homePage" && _id == "homePage-" + $lang][0]{\n  _id,\n  _type,\n  _updatedAt,\n  language,\n  seo,\n  sections[]{\n  _key,\n  _type,\n  heading,\n  intro,\n  _type == "heroSection" => {eyebrow, showRating, trustItems[]{_key, _type, label, value, name, "logo": logo.asset->{url, "width": metadata.dimensions.width, "height": metadata.dimensions.height}}, image{\n  asset,\n  hotspot,\n  crop,\n  alt,\n  "lqip": asset->metadata.lqip,\n  "dimensions": asset->metadata.dimensions\n}, primaryCta{\n  label,\n  linkType,\n  url,\n  emoji,\n  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}\n}, secondaryCta{\n  label,\n  linkType,\n  url,\n  emoji,\n  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}\n}},\n  _type == "introSection" => {primaryCta{\n  label,\n  linkType,\n  url,\n  emoji,\n  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}\n}, secondaryCta{\n  label,\n  linkType,\n  url,\n  emoji,\n  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}\n}, image{\n  asset,\n  hotspot,\n  crop,\n  alt,\n  "lqip": asset->metadata.lqip,\n  "dimensions": asset->metadata.dimensions\n}},\n  _type == "storySection" => {lead, body, card},\n  _type == "valuesSection" => {values[]{_key, title, description}},\n  _type == "statementSection" => {text, closing},\n  _type == "marqueeSection" => {"items": *[_type == "discipline" && language == $lang] | order(orderRank asc){_id, title}},\n  _type == "disciplinesSection" => {\n    cta{\n  label,\n  linkType,\n  url,\n  emoji,\n  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}\n},\n    "items": select(\n      count(disciplines) > 0 => disciplines[]->{\n  _id,\n  _type,\n  language,\n  key,\n  title,\n  "slug": slug.current,\n  summary,\n  tagline,\n  audienceLabel,\n  emoji,\n  "image": coalesce(cardImage, heroImage){\n  asset,\n  hotspot,\n  crop,\n  alt,\n  "lqip": asset->metadata.lqip,\n  "dimensions": asset->metadata.dimensions\n}\n},\n      *[_type == "discipline" && language == $lang] | order(orderRank asc){\n  _id,\n  _type,\n  language,\n  key,\n  title,\n  "slug": slug.current,\n  summary,\n  tagline,\n  audienceLabel,\n  emoji,\n  "image": coalesce(cardImage, heroImage){\n  asset,\n  hotspot,\n  crop,\n  alt,\n  "lqip": asset->metadata.lqip,\n  "dimensions": asset->metadata.dimensions\n}\n}\n    )\n  },\n  _type == "stepsSection" => {steps[]{_key, title, description}, cta{\n  label,\n  linkType,\n  url,\n  emoji,\n  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}\n}},\n  _type == "scheduleSection" => {discipline},\n  _type == "testimonialsSection" => {showRating, "items": testimonials[]->{_id, quote, quoteLanguage, authorName, memberSince, discipline, photo{\n  asset,\n  hotspot,\n  crop,\n  alt,\n  "lqip": asset->metadata.lqip,\n  "dimensions": asset->metadata.dimensions\n}}},\n  _type == "pricingSection" => {\n    "items": select(\n      count(memberships) > 0 => memberships[]->{\n  _id,\n  name,\n  membershipType,\n  price,\n  priceInterval,\n  credits,\n  validityMonths,\n  access,\n  signupUrl,\n  featured,\n  emoji,\n  "tagline": coalesce(tagline[language == $lang][0].value, tagline[language == "nl"][0].value),\n  "badge": coalesce(badge[language == $lang][0].value, badge[language == "nl"][0].value)\n},\n      *[_type == "membership" && coalesce(membershipType, "subscription") == "subscription"] | order(orderRank asc){\n  _id,\n  name,\n  membershipType,\n  price,\n  priceInterval,\n  credits,\n  validityMonths,\n  access,\n  signupUrl,\n  featured,\n  emoji,\n  "tagline": coalesce(tagline[language == $lang][0].value, tagline[language == "nl"][0].value),\n  "badge": coalesce(badge[language == $lang][0].value, badge[language == "nl"][0].value)\n}\n    ),\n    "punchCard": coalesce(punchCard->{\n  _id,\n  name,\n  membershipType,\n  price,\n  priceInterval,\n  credits,\n  validityMonths,\n  access,\n  signupUrl,\n  featured,\n  emoji,\n  "tagline": coalesce(tagline[language == $lang][0].value, tagline[language == "nl"][0].value),\n  "badge": coalesce(badge[language == $lang][0].value, badge[language == "nl"][0].value)\n}, *[_type == "membership" && membershipType == "punchCard"] | order(orderRank asc)[0]{\n  _id,\n  name,\n  membershipType,\n  price,\n  priceInterval,\n  credits,\n  validityMonths,\n  access,\n  signupUrl,\n  featured,\n  emoji,\n  "tagline": coalesce(tagline[language == $lang][0].value, tagline[language == "nl"][0].value),\n  "badge": coalesce(badge[language == $lang][0].value, badge[language == "nl"][0].value)\n}),\n    footnote,\n    secondaryCta{\n  label,\n  linkType,\n  url,\n  emoji,\n  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}\n},\n    cta{\n  label,\n  linkType,\n  url,\n  emoji,\n  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}\n}\n  },\n  _type == "faqSection" => {showContactInfo, image{\n  asset,\n  hotspot,\n  crop,\n  alt,\n  "lqip": asset->metadata.lqip,\n  "dimensions": asset->metadata.dimensions\n}, cta{\n  label,\n  linkType,\n  url,\n  emoji,\n  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}\n}, "items": faqs[]->{_id, question, answer}},\n  _type == "coachesSection" => {\n    "items": select(\n      count(coaches) > 0 => coaches[]->{\n  _id,\n  name,\n  "role": coalesce(role[language == $lang][0].value, role[language == "nl"][0].value),\n  "bio": coalesce(bio[language == $lang][0].value, bio[language == "nl"][0].value),\n  specialties,\n  certifications,\n  instagram,\n  photo{\n  asset,\n  hotspot,\n  crop,\n  alt,\n  "lqip": asset->metadata.lqip,\n  "dimensions": asset->metadata.dimensions\n}\n},\n      *[_type == "coach"] | order(orderRank asc){\n  _id,\n  name,\n  "role": coalesce(role[language == $lang][0].value, role[language == "nl"][0].value),\n  "bio": coalesce(bio[language == $lang][0].value, bio[language == "nl"][0].value),\n  specialties,\n  certifications,\n  instagram,\n  photo{\n  asset,\n  hotspot,\n  crop,\n  alt,\n  "lqip": asset->metadata.lqip,\n  "dimensions": asset->metadata.dimensions\n}\n}\n    )\n  },\n  _type == "newsSection" => {\n    "items": *[\n      _type == "post" && language == $lang && defined(slug.current) && (!defined(relevantUntil) || relevantUntil >= string::split(string(now()), "T")[0]) &&\n      (!defined(^.postType) || postType == ^.postType)\n    ] | order(publishedAt desc)[0...60]{\n  _id,\n  _type,\n  language,\n  title,\n  "slug": slug.current,\n  postType,\n  publishedAt,\n  summary,\n  heroImage{\n  asset,\n  hotspot,\n  crop,\n  alt,\n  "lqip": asset->metadata.lqip,\n  "dimensions": asset->metadata.dimensions\n},\n  // For the reading time (characters of the body text).\n  "textLength": length(pt::text(body)),\n  "author": author->{name, "role": coalesce(role[language == $lang][0].value, role[language == "nl"][0].value), photo{\n  asset,\n  hotspot,\n  crop,\n  alt,\n  "lqip": asset->metadata.lqip,\n  "dimensions": asset->metadata.dimensions\n}}\n},\n    layout,\n    limit\n  },\n  _type == "ctaSection" => {cta{\n  label,\n  linkType,\n  url,\n  emoji,\n  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}\n}, note},\n  _type == "textSection" => {"body": body[]{\n  ...,\n  _type == "inlineCta" => {heading, text, "link": link{\n  label,\n  linkType,\n  url,\n  emoji,\n  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}\n}},\n  markDefs[]{\n    ...,\n    _type == "internalLink" => {"reference": reference->{_type, language, slug}}\n  }\n}}\n}\n}': HOME_QUERY_RESULT;
+    '*[_type == "page" && language == $lang && slug.current == $slug][0]{\n  _id,\n  _type,\n  _updatedAt,\n  language,\n  title,\n  "slug": slug.current,\n  pageType,\n  summary,\n  "body": body[]{\n  ...,\n  _type == "inlineCta" => {heading, text, "link": link{\n  label,\n  linkType,\n  url,\n  emoji,\n  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}\n}},\n  markDefs[]{\n    ...,\n    _type == "internalLink" => {"reference": reference->{_type, language, slug}}\n  }\n},\n  seo,\n  sections[]{\n  _key,\n  _type,\n  heading,\n  intro,\n  _type == "heroSection" => {eyebrow, showRating, trustItems[]{_key, _type, label, value, name, "logo": logo.asset->{url, "width": metadata.dimensions.width, "height": metadata.dimensions.height}}, image{\n  asset,\n  hotspot,\n  crop,\n  alt,\n  "lqip": asset->metadata.lqip,\n  "dimensions": asset->metadata.dimensions\n}, primaryCta{\n  label,\n  linkType,\n  url,\n  emoji,\n  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}\n}, secondaryCta{\n  label,\n  linkType,\n  url,\n  emoji,\n  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}\n}},\n  _type == "introSection" => {primaryCta{\n  label,\n  linkType,\n  url,\n  emoji,\n  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}\n}, secondaryCta{\n  label,\n  linkType,\n  url,\n  emoji,\n  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}\n}, image{\n  asset,\n  hotspot,\n  crop,\n  alt,\n  "lqip": asset->metadata.lqip,\n  "dimensions": asset->metadata.dimensions\n}},\n  _type == "storySection" => {lead, body, card},\n  _type == "valuesSection" => {values[]{_key, title, description}},\n  _type == "statementSection" => {text, closing},\n  _type == "marqueeSection" => {"items": *[_type == "discipline" && language == $lang] | order(orderRank asc){_id, title}},\n  _type == "disciplinesSection" => {\n    cta{\n  label,\n  linkType,\n  url,\n  emoji,\n  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}\n},\n    "items": select(\n      count(disciplines) > 0 => disciplines[]->{\n  _id,\n  _type,\n  language,\n  key,\n  title,\n  "slug": slug.current,\n  summary,\n  tagline,\n  audienceLabel,\n  emoji,\n  "image": coalesce(cardImage, heroImage){\n  asset,\n  hotspot,\n  crop,\n  alt,\n  "lqip": asset->metadata.lqip,\n  "dimensions": asset->metadata.dimensions\n}\n},\n      *[_type == "discipline" && language == $lang] | order(orderRank asc){\n  _id,\n  _type,\n  language,\n  key,\n  title,\n  "slug": slug.current,\n  summary,\n  tagline,\n  audienceLabel,\n  emoji,\n  "image": coalesce(cardImage, heroImage){\n  asset,\n  hotspot,\n  crop,\n  alt,\n  "lqip": asset->metadata.lqip,\n  "dimensions": asset->metadata.dimensions\n}\n}\n    )\n  },\n  _type == "stepsSection" => {steps[]{_key, title, description}, cta{\n  label,\n  linkType,\n  url,\n  emoji,\n  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}\n}},\n  _type == "scheduleSection" => {discipline},\n  _type == "testimonialsSection" => {showRating, "items": testimonials[]->{_id, quote, quoteLanguage, authorName, memberSince, discipline, photo{\n  asset,\n  hotspot,\n  crop,\n  alt,\n  "lqip": asset->metadata.lqip,\n  "dimensions": asset->metadata.dimensions\n}}},\n  _type == "pricingSection" => {\n    "items": select(\n      count(memberships) > 0 => memberships[]->{\n  _id,\n  name,\n  membershipType,\n  price,\n  priceInterval,\n  credits,\n  validityMonths,\n  access,\n  signupUrl,\n  featured,\n  emoji,\n  "tagline": coalesce(tagline[language == $lang][0].value, tagline[language == "nl"][0].value),\n  "badge": coalesce(badge[language == $lang][0].value, badge[language == "nl"][0].value)\n},\n      *[_type == "membership" && coalesce(membershipType, "subscription") == "subscription"] | order(orderRank asc){\n  _id,\n  name,\n  membershipType,\n  price,\n  priceInterval,\n  credits,\n  validityMonths,\n  access,\n  signupUrl,\n  featured,\n  emoji,\n  "tagline": coalesce(tagline[language == $lang][0].value, tagline[language == "nl"][0].value),\n  "badge": coalesce(badge[language == $lang][0].value, badge[language == "nl"][0].value)\n}\n    ),\n    "punchCard": coalesce(punchCard->{\n  _id,\n  name,\n  membershipType,\n  price,\n  priceInterval,\n  credits,\n  validityMonths,\n  access,\n  signupUrl,\n  featured,\n  emoji,\n  "tagline": coalesce(tagline[language == $lang][0].value, tagline[language == "nl"][0].value),\n  "badge": coalesce(badge[language == $lang][0].value, badge[language == "nl"][0].value)\n}, *[_type == "membership" && membershipType == "punchCard"] | order(orderRank asc)[0]{\n  _id,\n  name,\n  membershipType,\n  price,\n  priceInterval,\n  credits,\n  validityMonths,\n  access,\n  signupUrl,\n  featured,\n  emoji,\n  "tagline": coalesce(tagline[language == $lang][0].value, tagline[language == "nl"][0].value),\n  "badge": coalesce(badge[language == $lang][0].value, badge[language == "nl"][0].value)\n}),\n    footnote,\n    secondaryCta{\n  label,\n  linkType,\n  url,\n  emoji,\n  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}\n},\n    cta{\n  label,\n  linkType,\n  url,\n  emoji,\n  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}\n}\n  },\n  _type == "faqSection" => {showContactInfo, image{\n  asset,\n  hotspot,\n  crop,\n  alt,\n  "lqip": asset->metadata.lqip,\n  "dimensions": asset->metadata.dimensions\n}, cta{\n  label,\n  linkType,\n  url,\n  emoji,\n  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}\n}, "items": faqs[]->{_id, question, answer}},\n  _type == "coachesSection" => {\n    "items": select(\n      count(coaches) > 0 => coaches[]->{\n  _id,\n  name,\n  "role": coalesce(role[language == $lang][0].value, role[language == "nl"][0].value),\n  "bio": coalesce(bio[language == $lang][0].value, bio[language == "nl"][0].value),\n  specialties,\n  certifications,\n  instagram,\n  photo{\n  asset,\n  hotspot,\n  crop,\n  alt,\n  "lqip": asset->metadata.lqip,\n  "dimensions": asset->metadata.dimensions\n}\n},\n      *[_type == "coach"] | order(orderRank asc){\n  _id,\n  name,\n  "role": coalesce(role[language == $lang][0].value, role[language == "nl"][0].value),\n  "bio": coalesce(bio[language == $lang][0].value, bio[language == "nl"][0].value),\n  specialties,\n  certifications,\n  instagram,\n  photo{\n  asset,\n  hotspot,\n  crop,\n  alt,\n  "lqip": asset->metadata.lqip,\n  "dimensions": asset->metadata.dimensions\n}\n}\n    )\n  },\n  _type == "newsSection" => {\n    "items": *[\n      _type == "post" && language == $lang && defined(slug.current) && (!defined(relevantUntil) || relevantUntil >= string::split(string(now()), "T")[0]) &&\n      (!defined(^.postType) || postType == ^.postType)\n    ] | order(publishedAt desc)[0...60]{\n  _id,\n  _type,\n  language,\n  title,\n  "slug": slug.current,\n  postType,\n  publishedAt,\n  summary,\n  heroImage{\n  asset,\n  hotspot,\n  crop,\n  alt,\n  "lqip": asset->metadata.lqip,\n  "dimensions": asset->metadata.dimensions\n},\n  // For the reading time (characters of the body text).\n  "textLength": length(pt::text(body)),\n  "author": author->{name, "role": coalesce(role[language == $lang][0].value, role[language == "nl"][0].value), photo{\n  asset,\n  hotspot,\n  crop,\n  alt,\n  "lqip": asset->metadata.lqip,\n  "dimensions": asset->metadata.dimensions\n}}\n},\n    layout,\n    limit\n  },\n  _type == "ctaSection" => {cta{\n  label,\n  linkType,\n  url,\n  emoji,\n  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}\n}, note},\n  _type == "textSection" => {"body": body[]{\n  ...,\n  _type == "inlineCta" => {heading, text, "link": link{\n  label,\n  linkType,\n  url,\n  emoji,\n  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}\n}},\n  markDefs[]{\n    ...,\n    _type == "internalLink" => {"reference": reference->{_type, language, slug}}\n  }\n}}\n},\n  "translations": *[_type == "translation.metadata" && references(^._id)][0].translations[].value->{\n  _type,\n  language,\n  "slug": slug.current\n}\n}': PAGE_QUERY_RESULT;
+    '*[_type == "discipline" && language == $lang && slug.current == $slug][0]{\n  _id,\n  _type,\n  _updatedAt,\n  language,\n  key,\n  title,\n  "slug": slug.current,\n  heading,\n  summary,\n  heroImage{\n  asset,\n  hotspot,\n  crop,\n  alt,\n  "lqip": asset->metadata.lqip,\n  "dimensions": asset->metadata.dimensions\n},\n  level,\n  durationMinutes,\n  maxGroupSize,\n  bookingType,\n  extraFacts[]{_key, label, value},\n  essentials{heading, intro, image{\n  asset,\n  hotspot,\n  crop,\n  alt,\n  "lqip": asset->metadata.lqip,\n  "dimensions": asset->metadata.dimensions\n}, items[]{_key, title, description}},\n  benefits,\n  lessonOutline,\n  "body": body[]{\n  ...,\n  _type == "inlineCta" => {heading, text, "link": link{\n  label,\n  linkType,\n  url,\n  emoji,\n  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}\n}},\n  markDefs[]{\n    ...,\n    _type == "internalLink" => {"reference": reference->{_type, language, slug}}\n  }\n},\n  "coaches": select(\n    count(coaches) > 0 => coaches[]->{\n  _id,\n  name,\n  "role": coalesce(role[language == $lang][0].value, role[language == "nl"][0].value),\n  "bio": coalesce(bio[language == $lang][0].value, bio[language == "nl"][0].value),\n  specialties,\n  certifications,\n  instagram,\n  photo{\n  asset,\n  hotspot,\n  crop,\n  alt,\n  "lqip": asset->metadata.lqip,\n  "dimensions": asset->metadata.dimensions\n}\n},\n    *[_type == "coach" && ^.key in specialties] | order(orderRank asc){\n  _id,\n  name,\n  "role": coalesce(role[language == $lang][0].value, role[language == "nl"][0].value),\n  "bio": coalesce(bio[language == $lang][0].value, bio[language == "nl"][0].value),\n  specialties,\n  certifications,\n  instagram,\n  photo{\n  asset,\n  hotspot,\n  crop,\n  alt,\n  "lqip": asset->metadata.lqip,\n  "dimensions": asset->metadata.dimensions\n}\n}\n  ),\n  "testimonial": testimonial->{_id, quote, quoteLanguage, authorName, memberSince, discipline, photo{\n  asset,\n  hotspot,\n  crop,\n  alt,\n  "lqip": asset->metadata.lqip,\n  "dimensions": asset->metadata.dimensions\n}},\n  "faqs": faqs[]->{_id, question, answer},\n  "related": related[]->{\n  _id,\n  _type,\n  language,\n  key,\n  title,\n  "slug": slug.current,\n  summary,\n  tagline,\n  audienceLabel,\n  emoji,\n  "image": coalesce(cardImage, heroImage){\n  asset,\n  hotspot,\n  crop,\n  alt,\n  "lqip": asset->metadata.lqip,\n  "dimensions": asset->metadata.dimensions\n}\n},\n  promise{label, quote, "coach": coach->{\n  _id,\n  name,\n  "role": coalesce(role[language == $lang][0].value, role[language == "nl"][0].value),\n  "bio": coalesce(bio[language == $lang][0].value, bio[language == "nl"][0].value),\n  specialties,\n  certifications,\n  instagram,\n  photo{\n  asset,\n  hotspot,\n  crop,\n  alt,\n  "lqip": asset->metadata.lqip,\n  "dimensions": asset->metadata.dimensions\n}\n}},\n  faqHeading,\n  ctaText,\n  "news": *[_type == "post" && language == $lang && ^.key in disciplines && (!defined(relevantUntil) || relevantUntil >= string::split(string(now()), "T")[0])] | order(publishedAt desc)[0...3]{\n  _id,\n  _type,\n  language,\n  title,\n  "slug": slug.current,\n  postType,\n  publishedAt,\n  summary,\n  heroImage{\n  asset,\n  hotspot,\n  crop,\n  alt,\n  "lqip": asset->metadata.lqip,\n  "dimensions": asset->metadata.dimensions\n},\n  // For the reading time (characters of the body text).\n  "textLength": length(pt::text(body)),\n  "author": author->{name, "role": coalesce(role[language == $lang][0].value, role[language == "nl"][0].value), photo{\n  asset,\n  hotspot,\n  crop,\n  alt,\n  "lqip": asset->metadata.lqip,\n  "dimensions": asset->metadata.dimensions\n}}\n},\n  sportbitClassNames,\n  seo,\n  "translations": *[_type == "translation.metadata" && references(^._id)][0].translations[].value->{\n  _type,\n  language,\n  "slug": slug.current\n}\n}': DISCIPLINE_QUERY_RESULT;
+    '*[_type == "program" && language == $lang && slug.current == $slug][0]{\n  _id,\n  _type,\n  _updatedAt,\n  language,\n  title,\n  "slug": slug.current,\n  programType,\n  discipline,\n  heading,\n  summary,\n  heroImage{\n  asset,\n  hotspot,\n  crop,\n  alt,\n  "lqip": asset->metadata.lqip,\n  "dimensions": asset->metadata.dimensions\n},\n  "body": body[]{\n  ...,\n  _type == "inlineCta" => {heading, text, "link": link{\n  label,\n  linkType,\n  url,\n  emoji,\n  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}\n}},\n  markDefs[]{\n    ...,\n    _type == "internalLink" => {"reference": reference->{_type, language, slug}}\n  }\n},\n  includes,\n  startDate,\n  endDate,\n  sessions[]{_key, label, value},\n  sessionCount,\n  participants,\n  price,\n  signupUrl,\n  "faqs": faqs[]->{_id, question, answer},\n  seo,\n  "translations": *[_type == "translation.metadata" && references(^._id)][0].translations[].value->{\n  _type,\n  language,\n  "slug": slug.current\n}\n}': PROGRAM_QUERY_RESULT;
+    '*[_type == "post" && language == $lang && slug.current == $slug][0]{\n  _id,\n  _type,\n  _updatedAt,\n  language,\n  title,\n  "slug": slug.current,\n  postType,\n  publishedAt,\n  relevantUntil,\n  "isCurrent": (!defined(relevantUntil) || relevantUntil >= string::split(string(now()), "T")[0]),\n  titleEmphasis,\n  summary,\n  heroImage{\n  asset,\n  hotspot,\n  crop,\n  alt,\n  "lqip": asset->metadata.lqip,\n  "dimensions": asset->metadata.dimensions\n},\n  heroCaption,\n  tags,\n  "body": body[]{\n  ...,\n  _type == "inlineCta" => {heading, text, "link": link{\n  label,\n  linkType,\n  url,\n  emoji,\n  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}\n}},\n  markDefs[]{\n    ...,\n    _type == "internalLink" => {"reference": reference->{_type, language, slug}}\n  }\n},\n  "textLength": length(pt::text(body)),\n  // Same kind first, then the newest others.\n  "related": *[_type == "post" && language == $lang && _id != ^._id && defined(slug.current) && (!defined(relevantUntil) || relevantUntil >= string::split(string(now()), "T")[0])]\n    | order(select(postType == ^.postType => 0, 1) asc, publishedAt desc)[0...3]{\n  _id,\n  _type,\n  language,\n  title,\n  "slug": slug.current,\n  postType,\n  publishedAt,\n  summary,\n  heroImage{\n  asset,\n  hotspot,\n  crop,\n  alt,\n  "lqip": asset->metadata.lqip,\n  "dimensions": asset->metadata.dimensions\n},\n  // For the reading time (characters of the body text).\n  "textLength": length(pt::text(body)),\n  "author": author->{name, "role": coalesce(role[language == $lang][0].value, role[language == "nl"][0].value), photo{\n  asset,\n  hotspot,\n  crop,\n  alt,\n  "lqip": asset->metadata.lqip,\n  "dimensions": asset->metadata.dimensions\n}}\n},\n  "author": author->{\n  _id,\n  name,\n  "role": coalesce(role[language == $lang][0].value, role[language == "nl"][0].value),\n  "bio": coalesce(bio[language == $lang][0].value, bio[language == "nl"][0].value),\n  specialties,\n  certifications,\n  instagram,\n  photo{\n  asset,\n  hotspot,\n  crop,\n  alt,\n  "lqip": asset->metadata.lqip,\n  "dimensions": asset->metadata.dimensions\n}\n},\n  "program": program->{_type, language, title, "slug": slug.current, startDate},\n  seo,\n  "translations": *[_type == "translation.metadata" && references(^._id)][0].translations[].value->{\n  _type,\n  language,\n  "slug": slug.current\n}\n}': POST_QUERY_RESULT;
     '*[\n  _type in ["homePage", "page", "discipline", "program", "post"] &&\n  defined(language) &&\n  (_type == "homePage" || defined(slug.current)) &&\n  !(_id in path("drafts.**"))\n]{\n  _id,\n  _type,\n  _updatedAt,\n  language,\n  "slug": slug.current,\n  "noIndex": seo.noIndex == true || (_type == "post" && !(!defined(relevantUntil) || relevantUntil >= string::split(string(now()), "T")[0])),\n  "translations": *[_type == "translation.metadata" && references(^._id)][0].translations[].value->{\n  _type,\n  language,\n  "slug": slug.current\n}\n}': ROUTES_QUERY_RESULT;
     '*[_type == "redirect" && isEnabled == true && defined(source) && defined(destination)]{\n  source,\n  destination,\n  permanent\n}': REDIRECTS_QUERY_RESULT;
   }
