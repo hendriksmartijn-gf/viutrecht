@@ -60,6 +60,7 @@ export const slugField = defineField({
 export const DISCIPLINES = [
   {title: 'CrossFit', value: 'crossfit'},
   {title: 'Advanced CrossFit', value: 'advanced-crossfit'},
+  {title: 'Gymnastics', value: 'gymnastics'},
   {title: 'HYROX', value: 'hyrox'},
   {title: 'Olympisch gewichtheffen', value: 'weightlifting'},
   {title: 'Krachttraining', value: 'strength'},

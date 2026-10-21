@@ -452,6 +452,7 @@ function Testimonials({ section, lang, settings, number }: SectionProps<"testimo
 const DISCIPLINE_LABELS: Record<string, string> = {
   crossfit: "CrossFit",
   "advanced-crossfit": "Advanced CrossFit",
+  gymnastics: "Gymnastics",
   hyrox: "Hyrox",
   weightlifting: "Gewichtheffen",
   strength: "Kracht",
