@@ -232,6 +232,11 @@ function Steps({ section, settings, number }: SectionProps<"stepsSection">) {
 
 function Disciplines({ section, lang, settings, number }: SectionProps<"disciplinesSection">) {
   const t = UI[lang];
+  const items = (section.items ?? []).filter(Boolean) as NonNullable<NonNullable<Of<"disciplinesSection">["items"]>[number]>[];
+  // The first three (in Sanity's order) get big photo cards; the rest an expandable list.
+  const featured = items.slice(0, 3);
+  const more = items.slice(3);
+  const pad = (i: number) => String(i + 1).padStart(2, "0");
   return (
     <section className="bg-white">
       <div className={`${CONTAINER} flex flex-col gap-14 py-20 md:py-28`}>
@@ -240,33 +245,84 @@ function Disciplines({ section, lang, settings, number }: SectionProps<"discipli
           <Button link={section.cta} trialUrl={settings?.trialUrl} />
         </div>
         {section.intro && <p className="max-w-2xl text-[17px] leading-[1.5] text-ink/70">{section.intro}</p>}
-        <ul data-stagger className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {section.items?.map((d, i) =>
-            d ? (
-              <li key={d._id} className="group/card relative flex h-[500px] flex-col justify-between overflow-hidden rounded-[28px] bg-ink p-6">
+        <div className="flex flex-col gap-4">
+          <ul data-stagger className="grid gap-4 md:grid-cols-3">
+            {featured.map((d, i) => (
+              <li key={d._id} className="group/card relative flex h-[520px] flex-col justify-between overflow-hidden rounded-[28px] bg-ink p-6">
                 <div aria-hidden className="absolute inset-0">
-                  <SanityImage image={d.image} width={764} height={1000} sizes="(min-width: 1024px) 382px, (min-width: 640px) 50vw, 100vw" className="size-full object-cover transition-transform duration-700 ease-out group-hover/card:scale-105" />
-                  <div className="absolute inset-0 bg-gradient-to-b from-ink/0 from-30% to-ink/92" />
+                  <SanityImage image={d.image} width={784} height={1040} sizes="(min-width: 768px) 33vw, 100vw" className="size-full object-cover transition-transform duration-700 ease-out group-hover/card:scale-105" />
+                  <div className="absolute inset-0 bg-gradient-to-b from-ink/0 from-30% to-ink/90" />
                 </div>
                 <div className="relative flex items-center justify-between">
-                  <span className="rounded-full bg-ink/45 px-3 py-[7px] font-mono text-[11px] font-medium uppercase tracking-[0.06em] text-white backdrop-blur-sm">
-                    [ {String(i + 1).padStart(2, "0")} ]
+                  <span className="rounded-full bg-ink/45 px-3 py-[7px] font-mono text-[10px] font-medium uppercase tracking-[0.03em] text-white backdrop-blur-sm">
+                    [ {pad(i)} ]
                   </span>
                   {d.audienceLabel && (
-                    <span className="rounded-full bg-white px-3 py-[7px] font-mono text-[11px] font-medium uppercase tracking-[0.03em] text-ink">
+                    <span className="rounded-full bg-white px-3 py-1.5 font-mono text-[10px] font-medium uppercase tracking-[0.03em] text-ink/90">
                       {d.audienceLabel}
                     </span>
                   )}
                 </div>
                 <div className="relative flex flex-col items-start gap-3.5">
                   <h3 className="max-w-[330px] text-[clamp(28px,8vw,38px)] font-bold uppercase leading-[0.95] tracking-[-0.035em] text-white [overflow-wrap:anywhere]">{d.title}</h3>
-                  {(d.tagline ?? d.summary) && <p className="max-w-[320px] text-[15px] leading-[1.45] text-white/78">{d.tagline ?? d.summary}</p>}
+                  {(d.tagline ?? d.summary) && <p className="max-w-[320px] text-[15px] leading-[1.45] text-white/82">{d.tagline ?? d.summary}</p>}
                   <Button href={pathFor("discipline", d.language, d.slug)} label={t.viewClass} emoji={d.emoji} size="sm" stretched />
                 </div>
               </li>
-            ) : null,
+            ))}
+          </ul>
+          {more.length > 0 && (
+            <>
+              <div className="flex items-center justify-between pt-6 font-mono text-[11px] font-medium">
+                <p className="uppercase tracking-[0.05em] text-ink/60">{t.moreClasses}</p>
+                <p className="tracking-[0.03em] text-ink/40">
+                  {more.length} {t.classesCount}
+                </p>
+              </div>
+              <ul data-stagger className="flex flex-col gap-2">
+                {more.map((d, i) => (
+                  <li key={d._id}>
+                    <Link
+                      href={pathFor("discipline", d.language, d.slug)}
+                      className="group/row flex items-center justify-between gap-6 rounded-[20px] border border-ink/8 bg-white py-3 pl-[22px] pr-3.5 transition-colors duration-300 hover:border-ink/15 hover:bg-sand focus-visible:bg-sand focus-visible:outline-2 focus-visible:outline-primary"
+                    >
+                      <div className="flex min-w-0 flex-1 flex-col">
+                        <span className="font-mono text-[10px] font-medium uppercase tracking-[0.05em] text-ink/40">{pad(i + featured.length)}</span>
+                        <span className="mt-1.5 text-[20px] font-bold leading-[normal] tracking-[-0.02em]">{d.title}</span>
+                        {/* Expands on hover and keyboard focus; always open on touch screens. */}
+                        {(d.tagline ?? d.summary) && (
+                          <span className="grid grid-rows-[0fr] transition-[grid-template-rows] duration-500 ease-out group-hover/row:grid-rows-[1fr] group-focus-visible/row:grid-rows-[1fr] [@media(hover:none)]:grid-rows-[1fr]">
+                            <span className="overflow-hidden">
+                              <span className="block max-w-[560px] pb-1 pt-2 text-[15px] leading-[1.45] text-ink/70">{d.tagline ?? d.summary}</span>
+                            </span>
+                          </span>
+                        )}
+                      </div>
+                      {d.image?.asset && (
+                        <span aria-hidden className="hidden h-0 w-0 overflow-hidden rounded-2xl opacity-0 transition-[width,height,opacity] duration-500 ease-out group-hover/row:h-[90px] group-hover/row:w-[140px] group-hover/row:opacity-100 group-focus-visible/row:h-[90px] group-focus-visible/row:w-[140px] group-focus-visible/row:opacity-100 md:block">
+                          <SanityImage image={d.image} width={280} height={180} sizes="140px" className="h-[90px] w-[140px] object-cover" />
+                        </span>
+                      )}
+                      <span className="flex shrink-0 items-center gap-2.5">
+                        {d.audienceLabel && (
+                          <span className="hidden rounded-full bg-sand px-3 py-1.5 font-mono text-[10px] font-medium uppercase tracking-[0.03em] text-ink/90 transition-colors group-hover/row:bg-white sm:inline">
+                            {d.audienceLabel}
+                          </span>
+                        )}
+                        <span
+                          aria-hidden
+                          className="flex size-9 items-center justify-center rounded-full bg-lilac text-[15px] transition-colors duration-300 group-hover/row:bg-coral"
+                        >
+                          <span className="leading-none motion-safe:group-hover/row:animate-wiggle">{d.emoji ?? "👉"}</span>
+                        </span>
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </>
           )}
-        </ul>
+        </div>
       </div>
     </section>
   );

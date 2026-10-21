@@ -124,6 +124,8 @@ export const UI = {
     maxGroup: "Max",
     breadcrumb: "Kruimelpad",
     previous: "Vorige",
+    moreClasses: "Meer lessen bij VI",
+    classesCount: "lessen",
     next: "Volgende",
   },
   en: {
@@ -190,6 +192,8 @@ export const UI = {
     maxGroup: "Max",
     breadcrumb: "Breadcrumb",
     previous: "Previous",
+    moreClasses: "More classes at VI",
+    classesCount: "classes",
     next: "Next",
   },
 } satisfies Record<Language, Record<string, string>>;
