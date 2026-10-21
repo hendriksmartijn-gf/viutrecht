@@ -180,9 +180,12 @@ export function DisciplinePage({ doc, lang, settings, cta, overviewPath }: Props
               <div className="flex flex-1 flex-col gap-10">
                 <SectionHead heading={outline?.heading} number={number("outline")} size="md" stacked className="max-w-[620px]" />
                 <ol data-stagger className="flex flex-col gap-2">
-                  {timeline.map((block) => (
+                  {timeline.map((block, i) => (
                     <li key={block._key} className="flex flex-col gap-3 rounded-[20px] border border-ink/7 bg-white px-6 py-[22px] sm:flex-row sm:gap-7">
-                      <span className="w-[110px] shrink-0 font-mono text-[12px] font-medium uppercase tracking-[0.03em] text-ink/50">{block.range}</span>
+                      {/* Blocks without minutes (a process rather than a class) are numbered as steps. */}
+                      <span className="w-[110px] shrink-0 font-mono text-[12px] font-medium uppercase tracking-[0.03em] text-ink/50">
+                        {block.range ?? `${t.step} ${String(i + 1).padStart(2, "0")}`}
+                      </span>
                       <div className="flex flex-col gap-2">
                         <h3 className="text-[22px] font-semibold tracking-[-0.02em]">{block.title}</h3>
                         {block.description && <p className="max-w-[440px] text-[15px] leading-[1.5] text-ink/65">{block.description}</p>}
