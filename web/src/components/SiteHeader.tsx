@@ -4,30 +4,40 @@ import type { NAVIGATION_QUERY_RESULT, SETTINGS_QUERY_RESULT } from "../../sanit
 import { pathFor, UI, type Language } from "@/sanity/i18n";
 import { Button } from "./Button";
 import { CtaLink } from "./CtaLink";
+import { MegaMenu, QuickLinks } from "./MegaMenu";
 import { MobileMenu } from "./MobileMenu";
+import { StickyHeader } from "./StickyHeader";
 
 type Props = { lang: Language; navigation: NAVIGATION_QUERY_RESULT; settings: SETTINGS_QUERY_RESULT };
 
+// The whole bar links to the trial week. Hover: it turns coral, the gift wiggles in and the
+// arrow nudges forward.
 export function TopBar({ lang, navigation, settings }: Props) {
   if (!navigation?.announcement) return null;
+  const classes = "group flex items-center justify-center gap-2.5 bg-sun px-4 py-2.5 text-center font-mono text-[10px] font-medium tracking-[0.03em] sm:gap-4 sm:px-6 sm:py-[11px] sm:text-[12px]";
+  const text = <span className="uppercase text-ink/90 sm:tracking-[0.06em]">{navigation.announcement}</span>;
+  if (!settings?.trialUrl) return <p className={classes}>{text}</p>;
   return (
-    <p className="flex items-center justify-center gap-2.5 bg-sun px-4 py-2.5 text-center font-mono text-[10px] font-medium tracking-[0.03em] sm:gap-4 sm:px-6 sm:py-[11px] sm:text-[12px]">
-      <span className="uppercase text-ink/90 sm:tracking-[0.06em]">{navigation.announcement}</span>
-      {settings?.trialUrl && (
-        <a href={settings.trialUrl} className="whitespace-nowrap text-ink underline-offset-2 hover:underline sm:tracking-[0.04em]">
-          {UI[lang].bookNow} →
-        </a>
-      )}
-    </p>
+    <a href={settings.trialUrl} className={`${classes} transition-colors duration-300 hover:bg-coral focus-visible:bg-coral focus-visible:outline-none`}>
+      <span aria-hidden className="hidden w-0 overflow-hidden text-[12px] leading-none opacity-0 transition-[width,opacity] duration-300 group-hover:w-4 group-hover:opacity-100 sm:inline-block">
+        <span className="inline-block motion-safe:group-hover:animate-wiggle">🎁</span>
+      </span>
+      {text}
+      <span className="flex items-center gap-1 whitespace-nowrap text-ink sm:tracking-[0.04em]">
+        {UI[lang].bookNow}
+        <span aria-hidden className="transition-transform duration-300 group-hover:translate-x-1">→</span>
+      </span>
+    </a>
   );
 }
 
-// Overlays the hero (white) or sits on paper (ink), see .site-header in globals.css.
+// Overlays the hero (white) or sits on paper (ink), pins to the top while scrolling and turns
+// solid with the mega menu open; see .site-header in globals.css.
 export function SiteHeader({ lang, navigation, settings }: Props) {
   const t = UI[lang];
   const trialUrl = settings?.trialUrl;
   return (
-    <header className="site-header absolute inset-x-0 z-20 flex h-14 items-center justify-between pr-4 md:h-20 md:bg-white/10 lg:pr-20">
+    <StickyHeader className="site-header absolute inset-x-0 z-20 flex h-14 items-center justify-between pr-4 transition-[background-color,color,box-shadow] duration-300 md:h-20 md:bg-white/10 lg:pr-20">
       <Link
         href={pathFor("homePage", lang)}
         aria-label={`${settings?.siteName ?? "VI Utrecht"}, ${t.home}`}
@@ -36,9 +46,10 @@ export function SiteHeader({ lang, navigation, settings }: Props) {
         <Image src="/brand/logo-header.svg" alt="" width={47.85} height={44} priority unoptimized className="h-8 w-[34.8px] md:h-11 md:w-[47.85px]" />
       </Link>
       {navigation?.header?.length || navigation?.classesMenu?.label ? (
-        <nav aria-label={t.mainMenu} className="hidden rounded-full px-7 py-3 backdrop-blur-md lg:block">
+        // No backdrop filter here: it would become the containing block of the mega menu panel.
+        <nav aria-label={t.mainMenu} className="hidden px-7 py-3 lg:block">
           <ul className="flex gap-9 text-[15px] font-medium">
-            {navigation.classesMenu?.label && <ClassesMenu menu={navigation.classesMenu} />}
+            {navigation.classesMenu?.label && <MegaMenu menu={navigation.classesMenu} lang={lang} settings={settings} />}
             {(navigation.header ?? []).map((link, i) => (
               <li key={i}>
                 <CtaLink link={link} trialUrl={trialUrl} className="hover:opacity-80" />
@@ -61,7 +72,7 @@ export function SiteHeader({ lang, navigation, settings }: Props) {
           <MobileMenuPanel lang={lang} navigation={navigation} settings={settings} />
         </MobileMenu>
       </div>
-    </header>
+    </StickyHeader>
   );
 }
 
@@ -81,8 +92,8 @@ function LanguageSwitch({ lang, className = "" }: { lang: Language; className?: 
   );
 }
 
-// Contents of the phone menu: the few main pages as big links, then every lesson, and the trial
-// CTA at the bottom.
+// Contents of the phone menu: the few main pages as big links, every lesson, the quick links from
+// the mega menu, and the trial CTA at the bottom.
 function MobileMenuPanel({ lang, navigation, settings }: Props) {
   const t = UI[lang];
   const trialUrl = settings?.trialUrl;
@@ -127,6 +138,12 @@ function MobileMenuPanel({ lang, navigation, settings }: Props) {
           </ul>
         </div>
       ) : null}
+      {classes?.quickLinks?.length ? (
+        <div className="flex flex-col gap-2 rounded-[24px] bg-sand px-2 pb-2 pt-4">
+          {classes.quickLinksTitle && <p className="eyebrow px-3 text-ink/55">{classes.quickLinksTitle}</p>}
+          <QuickLinks items={classes.quickLinks} settings={settings} lang={lang} />
+        </div>
+      ) : null}
       <div className="mt-auto flex flex-col gap-5">
         <Button link={navigation?.headerCta} trialUrl={trialUrl} full />
         <div className="flex items-center justify-between">
@@ -139,40 +156,5 @@ function MobileMenuPanel({ lang, navigation, settings }: Props) {
         </div>
       </div>
     </nav>
-  );
-}
-
-type ClassesMenuValue = NonNullable<NonNullable<NAVIGATION_QUERY_RESULT>["classesMenu"]>;
-
-// Opens on hover and on keyboard focus (focus-within), so it needs no client JavaScript.
-// The overview link keeps the label itself clickable and crawlable.
-function ClassesMenu({ menu }: { menu: ClassesMenuValue }) {
-  const overview = menu.overview ? pathFor(menu.overview._type, menu.overview.language, menu.overview.slug) : null;
-  return (
-    <li className="group relative">
-      {overview ? (
-        <Link href={overview} className="flex items-center gap-1 hover:opacity-80">
-          {menu.label} <span aria-hidden className="text-[11px]">▾</span>
-        </Link>
-      ) : (
-        <span className="flex items-center gap-1">{menu.label} ▾</span>
-      )}
-      {menu.items?.length ? (
-        <div className="invisible absolute -left-7 top-full pt-5 opacity-0 transition-opacity group-focus-within:visible group-focus-within:opacity-100 group-hover:visible group-hover:opacity-100">
-          <ul className="flex w-[280px] flex-col gap-1.5 rounded-[24px] bg-white p-3 text-ink shadow-[0_20px_60px_-20px_rgba(13,13,15,0.35)]">
-            {menu.items.map((item) => (
-              <li key={item._id}>
-                <Link
-                  href={pathFor(item._type, item.language, item.slug)}
-                  className="block rounded-2xl bg-paper px-4 py-3 text-[15px] font-medium transition-colors hover:bg-lilac focus-visible:bg-lilac"
-                >
-                  {item.title}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-      ) : null}
-    </li>
   );
 }

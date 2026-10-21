@@ -17,10 +17,52 @@ export const navigation = defineType({
       name: 'classesMenu',
       title: 'Lessenmenu',
       type: 'object',
-      description: 'Uitklapmenu in de header met alle lessen, in de volgorde van Lessen.',
+      description: 'Megamenu in de header: alle lessen (in de volgorde van Lessen), snelle links en een uitgelichte kaart.',
       fields: [
         defineField({name: 'label', type: 'string', description: 'Bijv. "Lessen".'}),
         defineField({name: 'overview', title: 'Overzichtspagina', type: 'reference', to: [{type: 'page'}]}),
+        defineField({name: 'quickLinksTitle', title: 'Titel snelle links', type: 'string', description: 'Bijv. "Starten bij VI".'}),
+        defineField({
+          name: 'quickLinks',
+          title: 'Snelle links',
+          type: 'array',
+          description: 'Middelste kolom. De emoji van de link staat in het vakje ervoor.',
+          of: [
+            defineArrayMember({
+              type: 'object',
+              name: 'quickLink',
+              fields: [
+                defineField({name: 'link', type: 'link', validation: (rule) => rule.required()}),
+                defineField({
+                  name: 'description',
+                  title: 'Toelichting',
+                  type: 'string',
+                  description: 'Bijv. "3 lessen in 7 dagen". Leeg bij de prijzenpagina: dan staat er automatisch "Vanaf €… per maand".',
+                }),
+              ],
+              preview: {select: {title: 'link.label', subtitle: 'description'}},
+            }),
+          ],
+          validation: (rule) => rule.max(6),
+        }),
+        defineField({
+          name: 'promo',
+          title: 'Uitgelichte kaart',
+          type: 'object',
+          description: 'Paarse kaart rechts, bijv. de gratis proefweek.',
+          fields: [
+            defineField({name: 'chips', title: 'Labels', type: 'array', of: [defineArrayMember({type: 'string'})], validation: (rule) => rule.max(2)}),
+            defineField({name: 'heading', title: 'Kop', type: 'sectionHeading'}),
+            defineField({name: 'text', title: 'Tekst', type: 'string'}),
+            defineField({name: 'link', type: 'link'}),
+          ],
+        }),
+        defineField({
+          name: 'eventsLink',
+          title: 'Link naar alle evenementen',
+          type: 'link',
+          description: 'Onder de uitgelichte kaarten. Het eerstvolgende event (of het nieuwste bericht met foto) verschijnt vanzelf.',
+        }),
       ],
     }),
     linkList('header', 'Hoofdmenu'),

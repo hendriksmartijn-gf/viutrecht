@@ -8,7 +8,7 @@ const LINK = /* groq */ `{
   linkType,
   url,
   emoji,
-  "internal": internal->{_type, language, "slug": slug.current, emoji}
+  "internal": internal->{_type, language, "slug": slug.current, emoji, pageType}
 }`;
 
 const IMAGE = /* groq */ `{
@@ -169,12 +169,26 @@ export const SETTINGS_QUERY = defineQuery(`*[_type == "settings" && _id == "sett
   "memberships": *[_type == "membership"] | order(orderRank asc)${MEMBERSHIP}
 }`);
 
+// The mega menu's featured card: the next course or event with a photo, else the newest current
+// post with one.
 export const NAVIGATION_QUERY = defineQuery(`*[_type == "navigation" && _id == "navigation-" + $lang][0]{
   announcement,
   classesMenu{
     label,
     "overview": overview->{_type, language, "slug": slug.current},
-    "items": *[_type == "discipline" && language == $lang && defined(slug.current)] | order(orderRank asc){_id, _type, language, title, emoji, "slug": slug.current}
+    "items": *[_type == "discipline" && language == $lang && defined(slug.current)] | order(orderRank asc){
+      _id, _type, language, title, emoji, "slug": slug.current, tagline, audienceLabel, "image": coalesce(cardImage, heroImage)${IMAGE}
+    },
+    quickLinksTitle,
+    quickLinks[]{_key, link${LINK}, description},
+    promo{chips, heading, text, link${LINK}},
+    eventsLink${LINK},
+    "nextEvent": *[_type == "program" && language == $lang && defined(slug.current) && defined(heroImage.asset) && startDate >= now()] | order(startDate asc)[0]{
+        _id, _type, language, title, "slug": slug.current, summary, "image": heroImage${IMAGE}
+    },
+    "latestPost": *[_type == "post" && language == $lang && defined(slug.current) && defined(heroImage.asset) && ${POST_IS_CURRENT}] | order(publishedAt desc)[0]{
+        _id, _type, language, title, "slug": slug.current, summary, "image": heroImage${IMAGE}
+    }
   },
   header[]${LINK},
   headerCta${LINK},

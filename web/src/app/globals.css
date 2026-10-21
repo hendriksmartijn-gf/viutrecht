@@ -63,6 +63,21 @@ body {
 body:has(main > [data-hero="dark"]:not([style*="display: none"])) .site-header {
   color: white;
 }
+/* Pinned while scrolling (see components/StickyHeader.tsx), and solid once it has left the top
+   or while the mega menu is open. !important because the hero rule above is more specific. */
+.site-header[data-pinned] {
+  position: fixed;
+  top: 0;
+}
+.site-header[data-solid],
+.site-header:has([data-mega]:hover),
+.site-header:has([data-mega]:focus-within) {
+  color: var(--color-ink) !important;
+  background-color: var(--color-paper) !important;
+}
+.site-header[data-solid] {
+  box-shadow: 0 8px 24px -16px rgb(13 13 15 / 0.35);
+}
 main:not(:has(> [data-hero="dark"]:not([style*="display: none"]))) {
   padding-top: 56px;
   @media (width >= 48rem) {
