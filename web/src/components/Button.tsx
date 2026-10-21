@@ -24,7 +24,8 @@ type Props = {
   variant?: keyof typeof VARIANTS;
   size?: "md" | "sm";
   arrow?: boolean;
-  full?: boolean;
+  // true: always full width; "mobile": full width on phones, natural width from `sm` up.
+  full?: boolean | "mobile";
   // Stretches the click area over the nearest positioned ancestor (whole-card links).
   stretched?: boolean;
   className?: string;
@@ -61,7 +62,9 @@ export function Button({
     "hover:bg-coral hover:text-ink hover:shadow-[0_12px_32px_-10px_rgba(248,105,87,0.8)]",
     "motion-safe:hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]",
     "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
-    full ? "w-full justify-center" : "",
+    full === true ? (arrow ? "w-full justify-center max-sm:justify-between" : "w-full justify-center") : "",
+    // On phones a button with a disc keeps its label left and the disc right, as in the design.
+    full === "mobile" ? (arrow ? "max-sm:w-full max-sm:justify-between" : "max-sm:w-full max-sm:justify-center") : "",
     // A stretched link must not be the positioned ancestor of its own ::after.
     stretched
       ? "after:absolute after:inset-0 after:content-['']"
@@ -97,7 +100,7 @@ export function Button({
   // The magnetic pull moves this wrapper, so it never fights the button's own hover transform.
   if (stretched) return element;
   return (
-    <span data-magnetic className={full ? "flex w-full" : "inline-flex"}>
+    <span data-magnetic className={full === true ? "flex w-full" : full === "mobile" ? "flex w-full sm:inline-flex sm:w-auto" : "inline-flex"}>
       {element}
     </span>
   );

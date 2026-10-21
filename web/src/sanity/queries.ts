@@ -173,7 +173,7 @@ export const NAVIGATION_QUERY = defineQuery(`*[_type == "navigation" && _id == "
   classesMenu{
     label,
     "overview": overview->{_type, language, "slug": slug.current},
-    "items": *[_type == "discipline" && language == $lang && defined(slug.current)] | order(orderRank asc){_id, _type, language, title, "slug": slug.current}
+    "items": *[_type == "discipline" && language == $lang && defined(slug.current)] | order(orderRank asc){_id, _type, language, title, emoji, "slug": slug.current}
   },
   header[]${LINK},
   headerCta${LINK},

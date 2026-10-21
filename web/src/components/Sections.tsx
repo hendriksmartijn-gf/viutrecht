@@ -10,7 +10,7 @@ import { RichText } from "./RichText";
 import { SanityImage } from "./SanityImage";
 import { SectionHead } from "./SectionHead";
 import { PlanCard } from "./MembershipCard";
-import { Carousel } from "./Carousel";
+import { Carousel, SnapList } from "./Carousel";
 
 export type Section = NonNullable<NonNullable<HOME_QUERY_RESULT>["sections"]>[number];
 type Settings = SETTINGS_QUERY_RESULT;
@@ -24,9 +24,9 @@ type Props = {
 
 // Shared widths from the design: 1280 content column, and "inset" panels that sit
 // 16px from the viewport edge with 48px corners.
-export const CONTAINER = "mx-auto w-full max-w-[1280px] px-6 md:px-12";
+export const CONTAINER = "mx-auto w-full max-w-[1280px] px-5 md:px-12";
 // Content pages (Over ons) sit 128px from the viewport edge instead of inside the 1280 column.
-const WIDE = "mx-auto w-full max-w-[1440px] px-6 md:px-12 lg:px-32";
+const WIDE = "mx-auto w-full max-w-[1440px] px-5 md:px-12 lg:px-32";
 export const INSET = "mx-2 overflow-hidden rounded-[32px] md:mx-4 md:rounded-[48px]";
 
 export function Sections({ sections, lang, settings, pageTitle }: Props) {
@@ -97,31 +97,34 @@ function Hero({ section, lang, settings, isFirst }: SectionProps<"heroSection"> 
     <section data-hero="dark" className="relative overflow-hidden bg-ink">
       {image && (
         <div aria-hidden data-hero-media="parallax" className="absolute inset-0 overflow-hidden">
-          {/* Crop from the design: the image is enlarged and anchored top-left. */}
+          {/* Crops from the design: on phones the image fills the height, shifted left; from md
+              it is enlarged and anchored top-left. */}
           <Image
             src={urlFor(image).width(2576).auto("format").url()}
             alt=""
             width={2576}
             height={1717}
             priority={isFirst}
-            sizes="125vw"
+            sizes="(max-width: 767px) 280vw, 125vw"
             placeholder={image.lqip ? "blur" : "empty"}
             blurDataURL={image.lqip ?? undefined}
-            className="absolute left-0 top-[-16.37%] h-[136.43%] w-[125%] max-w-none object-cover"
+            className="absolute left-[-83.33%] top-0 h-full w-[277.78%] max-w-none object-cover md:left-0 md:top-[-16.37%] md:h-[136.43%] md:w-[125%]"
           />
-          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(13,13,15,0.5)_0%,rgba(13,13,15,0)_22%,rgba(13,13,15,0)_75%,rgba(13,13,15,0.45)_100%),linear-gradient(90deg,rgba(13,13,15,0.82)_0%,rgba(13,13,15,0.45)_45%,rgba(13,13,15,0)_75%)]" />
+          {/* Phones: text sits at the bottom, so the shade runs top to bottom. */}
+          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(13,13,15,0.55)_0%,rgba(13,13,15,0)_16%,rgba(13,13,15,0.2)_28%,rgba(13,13,15,0.78)_48%,rgba(13,13,15,0.94)_100%)] md:hidden" />
+          <div className="absolute inset-0 hidden md:block bg-[linear-gradient(180deg,rgba(13,13,15,0.5)_0%,rgba(13,13,15,0)_22%,rgba(13,13,15,0)_75%,rgba(13,13,15,0.45)_100%),linear-gradient(90deg,rgba(13,13,15,0.82)_0%,rgba(13,13,15,0.45)_45%,rgba(13,13,15,0)_75%)]" />
         </div>
       )}
-      <div className="relative mx-auto flex min-h-[720px] w-full max-w-[1280px] items-center pt-20 md:h-[900px]">
-        <div className="flex w-full max-w-[700px] flex-col gap-8 px-6 py-16 md:pl-12 md:pr-10">
+      <div className="relative mx-auto flex min-h-[780px] w-full max-w-[1280px] items-end pt-[110px] md:h-[900px] md:min-h-[720px] md:items-center md:pt-20">
+        <div className="flex w-full max-w-[700px] flex-col gap-[18px] px-5 pb-7 md:gap-8 md:py-16 md:pl-12 md:pr-10">
           {section.eyebrow && (
-            <p data-hero-item className="flex items-center gap-3 font-mono text-[12px] font-medium uppercase tracking-[0.06em] text-white/75">
-              <span aria-hidden className="h-px w-14 bg-white/40" />
+            <p data-hero-item className="flex items-center gap-2 font-mono text-[10px] font-medium uppercase tracking-[0.03em] text-white/75 md:gap-3 md:text-[12px] md:tracking-[0.06em]">
+              <span aria-hidden className="hidden h-px w-14 bg-white/40 md:block" />
               <Image src="/brand/dot-live.svg" alt="" width={8} height={8} unoptimized />
               {section.eyebrow}
             </p>
           )}
-          <Title data-hero-item className="text-[clamp(52px,6.67vw,96px)] font-bold leading-[0.94] tracking-[-0.045em] text-white">
+          <Title data-hero-item className="text-[clamp(54px,6.67vw,96px)] font-bold leading-[0.94] tracking-[-0.045em] text-white">
             {section.heading?.text}
             {section.heading?.emphasis && (
               <>
@@ -130,10 +133,10 @@ function Hero({ section, lang, settings, isFirst }: SectionProps<"heroSection"> 
               </>
             )}
           </Title>
-          {section.intro && <p data-hero-item className="max-w-[500px] text-[clamp(17px,1.4vw,20px)] leading-[1.45] text-white/70">{section.intro}</p>}
-          <div data-hero-item className="flex flex-wrap gap-3">
-            <Button link={section.primaryCta} trialUrl={settings?.trialUrl} />
-            <Button link={section.secondaryCta} trialUrl={settings?.trialUrl} variant="ghostLight" />
+          {section.intro && <p data-hero-item className="max-w-[500px] text-[clamp(17px,1.4vw,20px)] leading-[1.5] text-white/72 md:leading-[1.45] md:text-white/70">{section.intro}</p>}
+          <div data-hero-item className="flex flex-col gap-2.5 sm:flex-row sm:flex-wrap sm:gap-3">
+            <Button link={section.primaryCta} trialUrl={settings?.trialUrl} full="mobile" />
+            <Button link={section.secondaryCta} trialUrl={settings?.trialUrl} variant="ghostLight" full="mobile" />
           </div>
           <TrustRow section={section} settings={settings} lang={lang} t={t} />
         </div>
@@ -153,7 +156,7 @@ function TrustRow({ section, settings, t }: { section: Of<"heroSection">; settin
   ];
   if (!logos.length && !facts.length) return null;
   return (
-    <div data-hero-item className="flex flex-wrap items-center gap-x-8 gap-y-6 pt-6">
+    <div data-hero-item className="flex flex-wrap items-center gap-x-8 gap-y-6 md:pt-6">
       {logos.length > 0 && (
         <ul className="flex flex-wrap items-center gap-8">
           {logos.map((item) => (
@@ -172,11 +175,11 @@ function TrustRow({ section, settings, t }: { section: Of<"heroSection">; settin
         </ul>
       )}
       {facts.length > 0 && (
-        <dl className="flex flex-wrap gap-6">
+        <dl className="flex w-full justify-between gap-4 sm:w-auto sm:flex-wrap sm:justify-start sm:gap-6">
           {facts.map((item) => (
-            <div key={item.key} className="flex flex-col-reverse gap-1 pr-6">
-              <dt className="font-mono text-[11px] font-medium uppercase tracking-[0.06em] text-white/50">{item.label}</dt>
-              <dd className="text-[15px] font-semibold text-white">{item.value}</dd>
+            <div key={item.key} className="flex flex-col-reverse gap-[3px] sm:gap-1 sm:pr-6">
+              <dt className="font-mono text-[9px] font-medium uppercase tracking-[0.03em] text-white/50 sm:text-[11px] sm:tracking-[0.06em]">{item.label}</dt>
+              <dd className="text-[14px] font-semibold text-white sm:text-[15px]">{item.value}</dd>
             </div>
           ))}
         </dl>
@@ -190,14 +193,14 @@ function Marquee({ section }: { section: Of<"marqueeSection"> }) {
   if (!items.length) return null;
   // Decorative: the same disciplines are listed (and linked) further down the page.
   const run = items.flatMap((item) => [
-    <span key={item._id} className="text-[30px] uppercase tracking-[-0.02em]">{item.title}</span>,
-    <span key={`${item._id}-star`} className="text-[22px]">✦</span>,
+    <span key={item._id} className="text-[22px] uppercase tracking-[-0.02em] md:text-[30px]">{item.title}</span>,
+    <span key={`${item._id}-star`} className="text-[16px] md:text-[22px]">✦</span>,
   ]);
   return (
-    <div aria-hidden className="overflow-hidden bg-lavender py-[18px] font-bold leading-[36px] text-white">
-      <div className="animate-marquee flex w-max gap-7 whitespace-nowrap">
-        <div className="flex items-center gap-7">{run}</div>
-        <div className="flex items-center gap-7">{run}</div>
+    <div aria-hidden className="overflow-hidden bg-lavender py-3.5 font-bold leading-[normal] text-white md:py-[18px] md:leading-[36px]">
+      <div className="animate-marquee flex w-max gap-[18px] whitespace-nowrap md:gap-7">
+        <div className="flex items-center gap-[18px] md:gap-7">{run}</div>
+        <div className="flex items-center gap-[18px] md:gap-7">{run}</div>
       </div>
     </div>
   );
@@ -206,25 +209,33 @@ function Marquee({ section }: { section: Of<"marqueeSection"> }) {
 function Steps({ section, settings, number }: SectionProps<"stepsSection">) {
   return (
     <section className={`${INSET} bg-sand`}>
-      <div className={`${CONTAINER} flex flex-col gap-[72px] py-20 md:py-28`}>
-        <div className="flex flex-col justify-between gap-8 lg:flex-row lg:items-end">
+      <div className={`${CONTAINER} flex flex-col gap-[22px] py-10 md:gap-[72px] md:py-28`}>
+        <div className="flex flex-col justify-between gap-[22px] md:gap-8 lg:flex-row lg:items-end">
           <SectionHead heading={section.heading} number={number} className="max-w-[640px]" />
           <div data-reveal className="flex max-w-[400px] flex-col items-start gap-6">
-            {section.intro && <p className="text-[19px] leading-[1.5] text-ink/72">{section.intro}</p>}
-            <Button link={section.cta} trialUrl={settings?.trialUrl} variant="primaryOnSand" />
+            {section.intro && <p className="text-[16px] leading-[1.5] text-ink/72 md:text-[19px]">{section.intro}</p>}
+            {/* Phones get the button below the steps instead. */}
+            <span className="hidden md:block">
+              <Button link={section.cta} trialUrl={settings?.trialUrl} variant="primaryOnSand" />
+            </span>
           </div>
         </div>
-        <ol data-stagger className="grid gap-4 md:grid-cols-3">
+        <ol data-stagger className="grid gap-[22px] md:grid-cols-3 md:gap-4">
           {section.steps?.map((step, i) => (
-            <li key={step._key} className="flex min-h-[263px] flex-col gap-3.5 rounded-[28px] border border-ink/7 bg-white px-7 pb-8 pt-7">
-              <span aria-hidden className="display-emphasis text-[72px] leading-none text-primary">
+            <li key={step._key} className="flex gap-4 rounded-[24px] border border-ink/7 bg-white p-5 md:min-h-[263px] md:flex-col md:gap-3.5 md:rounded-[28px] md:px-7 md:pb-8 md:pt-7">
+              <span aria-hidden className="display-emphasis shrink-0 text-[48px] leading-[0.9] text-primary md:text-[72px] md:leading-none">
                 {String(i + 1).padStart(2, "0")}
               </span>
-              <h3 className="text-[24px] font-semibold tracking-[-0.02em]">{step.title}</h3>
-              {step.description && <p className="text-[16px] leading-[1.5] text-ink/70">{step.description}</p>}
+              <div className="flex flex-col gap-1.5 md:gap-3.5">
+                <h3 className="text-[18px] font-semibold tracking-[-0.015em] md:text-[24px] md:tracking-[-0.02em]">{step.title}</h3>
+                {step.description && <p className="text-[14px] leading-[1.5] text-ink/70 md:text-[16px]">{step.description}</p>}
+              </div>
             </li>
           ))}
         </ol>
+        <div className="md:hidden">
+          <Button link={section.cta} trialUrl={settings?.trialUrl} variant="primaryOnSand" full="mobile" />
+        </div>
       </div>
     </section>
   );
@@ -239,18 +250,21 @@ function Disciplines({ section, lang, settings, number }: SectionProps<"discipli
   const pad = (i: number) => String(i + 1).padStart(2, "0");
   return (
     <section className="bg-white">
-      <div className={`${CONTAINER} flex flex-col gap-14 py-20 md:py-28`}>
-        <div className="flex flex-col justify-between gap-8 lg:flex-row lg:items-end">
+      <div className={`${CONTAINER} flex flex-col gap-6 pb-12 pt-14 md:gap-14 md:py-28`}>
+        <div className="flex flex-col justify-between gap-8 pb-2 md:pb-0 lg:flex-row lg:items-end">
           <SectionHead heading={section.heading} number={number} className="max-w-[700px] [&_h2]:leading-[1.08]" />
-          <Button link={section.cta} trialUrl={settings?.trialUrl} />
+          <span className="hidden md:block">
+            <Button link={section.cta} trialUrl={settings?.trialUrl} />
+          </span>
         </div>
-        {section.intro && <p className="max-w-2xl text-[17px] leading-[1.5] text-ink/70">{section.intro}</p>}
-        <div className="flex flex-col gap-4">
-          <ul data-stagger className="grid gap-4 md:grid-cols-3">
+        {section.intro && <p className="max-w-2xl text-[16px] leading-[1.5] text-ink/70 md:text-[17px]">{section.intro}</p>}
+        <div className="flex flex-col gap-6 md:gap-4">
+          {/* Phones: a swipeable row that runs off the right edge; md and up: three columns. */}
+          <SnapList className="-mr-5 pr-5 md:mr-0 md:grid md:grid-cols-3 md:gap-4 md:overflow-visible md:pr-0">
             {featured.map((d, i) => (
-              <li key={d._id} className="group/card relative flex h-[520px] flex-col justify-between overflow-hidden rounded-[28px] bg-ink p-6">
+              <li key={d._id} className="group/card relative flex h-[400px] w-[290px] shrink-0 snap-start flex-col justify-between overflow-hidden rounded-[28px] bg-ink p-5 md:h-[520px] md:w-auto md:p-6">
                 <div aria-hidden className="absolute inset-0">
-                  <SanityImage image={d.image} width={784} height={1040} sizes="(min-width: 768px) 33vw, 100vw" className="size-full object-cover transition-transform duration-700 ease-out group-hover/card:scale-105" />
+                  <SanityImage image={d.image} width={784} height={1040} sizes="(min-width: 768px) 33vw, 290px" className="size-full object-cover transition-transform duration-700 ease-out group-hover/card:scale-105" />
                   <div className="absolute inset-0 bg-gradient-to-b from-ink/0 from-30% to-ink/90" />
                 </div>
                 <div className="relative flex items-center justify-between">
@@ -264,13 +278,13 @@ function Disciplines({ section, lang, settings, number }: SectionProps<"discipli
                   )}
                 </div>
                 <div className="relative flex flex-col items-start gap-3.5">
-                  <h3 className="max-w-[330px] text-[clamp(28px,8vw,38px)] font-bold uppercase leading-[0.95] tracking-[-0.035em] text-white [overflow-wrap:anywhere]">{d.title}</h3>
-                  {(d.tagline ?? d.summary) && <p className="max-w-[320px] text-[15px] leading-[1.45] text-white/82">{d.tagline ?? d.summary}</p>}
+                  <h3 className="max-w-[330px] text-[30px] font-bold uppercase leading-[0.95] tracking-[-0.035em] text-white hyphens-auto md:text-[clamp(28px,3vw,38px)]">{d.title}</h3>
+                  {(d.tagline ?? d.summary) && <p className="max-w-[320px] text-[14px] leading-[1.45] text-white/80 md:text-[15px] md:text-white/82">{d.tagline ?? d.summary}</p>}
                   <Button href={pathFor("discipline", d.language, d.slug)} label={t.viewClass} emoji={d.emoji} size="sm" stretched />
                 </div>
               </li>
             ))}
-          </ul>
+          </SnapList>
           {more.length > 0 && (
             <>
               <div className="flex items-center justify-between pt-6 font-mono text-[11px] font-medium">
@@ -323,6 +337,9 @@ function Disciplines({ section, lang, settings, number }: SectionProps<"discipli
             </>
           )}
         </div>
+        <div className="md:hidden">
+          <Button link={section.cta} trialUrl={settings?.trialUrl} />
+        </div>
       </div>
     </section>
   );
@@ -332,9 +349,9 @@ function Disciplines({ section, lang, settings, number }: SectionProps<"discipli
 // length instead of letting a card grow out of proportion.
 const quoteSize = (quote: string | null | undefined) => {
   const length = quote?.length ?? 0;
-  if (length <= 140) return "text-[32px] leading-[1.12]";
-  if (length <= 300) return "text-[26px] leading-[1.15]";
-  return "text-[21px] leading-[1.25]";
+  if (length <= 140) return "text-[26px] leading-[1.12] md:text-[32px]";
+  if (length <= 300) return "text-[22px] leading-[1.15] md:text-[26px]";
+  return "text-[18px] leading-[1.25] md:text-[21px]";
 };
 
 function Testimonials({ section, lang, settings, number }: SectionProps<"testimonialsSection">) {
@@ -342,14 +359,41 @@ function Testimonials({ section, lang, settings, number }: SectionProps<"testimo
   const rating = section.showRating ? settings?.rating : null;
   const items = section.items?.filter(Boolean) ?? [];
   if (!items.length && !rating?.value) return null;
-  const tones = ["bg-sand", "bg-lilac"];
-  const card = "flex min-h-[440px] w-[85%] shrink-0 snap-start flex-col justify-between gap-8 rounded-[32px] p-9";
+  // Lilac first on phones (the lavender score card sits above), sand first next to it from md.
+  const tones = ["bg-lilac md:bg-sand", "bg-sand md:bg-lilac"];
+  const card = "flex w-[88%] shrink-0 snap-start flex-col justify-between gap-5 rounded-[28px] p-6 md:min-h-[440px] md:gap-8 md:rounded-[32px] md:p-9";
+  // Phones: the score is a compact card above the swipeable quotes instead of the first slide.
+  const ratingCard = rating?.value ? (
+    <div className="flex items-center justify-between gap-4 rounded-[28px] bg-lavender p-6 text-white">
+      <p className="font-serif text-[84px] leading-[0.9]">{rating.value.toFixed(1)}</p>
+      <div className="flex flex-col gap-1.5">
+        <p aria-label={`${rating.value} / 5`} className="text-[18px] tracking-[0.08em]">
+          {"★".repeat(Math.round(rating.value))}
+        </p>
+        {rating.count ? (
+          <p className="text-[14px]">
+            {t.basedOn} {rating.count} {t.reviews}
+          </p>
+        ) : null}
+        {settings?.reviewsUrl && (
+          <a href={settings.reviewsUrl} className="text-[14px] font-semibold hover:text-sun" rel="noopener">
+            {t.readReviews} →
+          </a>
+        )}
+      </div>
+    </div>
+  ) : null;
   return (
     <section className="bg-white">
-      <div className={`${CONTAINER} flex flex-col gap-14 py-20 md:py-28`}>
-        <Carousel prevLabel={t.previous} nextLabel={t.next} header={<SectionHead heading={section.heading} number={number} stacked className="max-w-[640px]" />}>
+      <div className={`${CONTAINER} flex flex-col gap-5 pb-14 pt-6 md:gap-14 md:py-28`}>
+        <Carousel
+          prevLabel={t.previous}
+          nextLabel={t.next}
+          header={<SectionHead heading={section.heading} number={number} stacked className="max-w-[640px]" />}
+          aside={ratingCard}
+        >
           {rating?.value && (
-            <li className={`${card} bg-lavender text-white sm:w-[330px]`}>
+            <li className={`${card} hidden bg-lavender text-white md:flex md:w-[330px]`}>
               <p className="eyebrow text-white/70">{t.googleScore}</p>
               <div className="flex flex-col gap-2">
                 <p className="font-serif text-[160px] leading-[0.9] tracking-[-0.03em]">{rating.value.toFixed(1)}</p>
@@ -373,8 +417,8 @@ function Testimonials({ section, lang, settings, number }: SectionProps<"testimo
           )}
           {items.map((item, i) =>
             item ? (
-              <li key={item._id} className={`${card} sm:w-[411px] ${tones[i % tones.length]}`}>
-                <figure className="flex h-full flex-col justify-between gap-8">
+              <li key={item._id} className={`${card} md:w-[411px] ${tones[i % tones.length]}`}>
+                <figure className="flex h-full flex-col justify-between gap-5 md:gap-8">
                   <blockquote lang={item.quoteLanguage ?? undefined} className={`font-serif tracking-[-0.015em] ${quoteSize(item.quote)}`}>
                     “{item.quote}”
                   </blockquote>
@@ -420,18 +464,18 @@ const DISCIPLINE_LABELS: Record<string, string> = {
 function Pricing({ section, lang, settings, number }: SectionProps<"pricingSection">) {
   return (
     <section className={`${INSET} bg-sand`}>
-      <div className={`${CONTAINER} flex flex-col gap-14 py-20 md:py-28`}>
-        <div className="flex flex-col justify-between gap-8 lg:flex-row lg:items-end">
+      <div className={`${CONTAINER} flex flex-col gap-4 py-10 max-md:px-4 md:gap-14 md:py-28`}>
+        <div className="flex flex-col justify-between gap-4 max-md:px-1 md:gap-8 lg:flex-row lg:items-end">
           <SectionHead heading={section.heading} number={number} stacked className="max-w-[640px]" />
-          {section.intro && <p data-reveal className="max-w-[380px] text-[17px] leading-[1.5] text-ink/70">{section.intro}</p>}
+          {section.intro && <p data-reveal className="max-w-[380px] text-[15px] leading-[1.5] text-ink/70 md:text-[17px]">{section.intro}</p>}
         </div>
         <ul data-stagger className="grid items-start gap-4 lg:grid-cols-3">
           {section.items?.map((m) => (m ? <PlanCard key={m._id} membership={m} lang={lang} /> : null))}
         </ul>
         {(section.footnote || section.cta) && (
-          <div className="flex flex-col justify-between gap-6 pt-6 md:flex-row md:items-center">
-            {section.footnote && <p className="text-[18px] font-semibold tracking-[-0.01em]">{section.footnote}</p>}
-            <div className="flex flex-wrap items-center gap-7">
+          <div className="flex flex-col justify-between gap-4 px-1 pt-2 md:flex-row md:items-center md:gap-6 md:px-0 md:pt-6">
+            {section.footnote && <p className="text-[16px] font-semibold tracking-[-0.01em] md:text-[18px]">{section.footnote}</p>}
+            <div className="flex flex-col items-start gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:gap-7">
               {section.secondaryCta && (
                 <Button link={section.secondaryCta} trialUrl={settings?.trialUrl} variant="ghostDark" arrow={false} className="!border-0 !px-0 !font-medium !text-ink/70" />
               )}
@@ -461,11 +505,11 @@ function dayRange(days: string[] | null | undefined, lang: Language) {
 
 function InfoCard({ label, children, link }: { label: string; children: React.ReactNode; link?: { href: string; label: string } | null }) {
   return (
-    <div className="flex flex-col gap-2 rounded-[20px] border border-ink/7 bg-white p-5">
-      <p className="eyebrow text-ink/55">{label}</p>
-      <div className="text-[16px] leading-[1.5] text-ink/90">{children}</div>
+    <div className="flex min-w-0 flex-col gap-1.5 rounded-[20px] border border-ink/7 bg-white p-4 md:gap-2 md:p-5">
+      <p className="eyebrow text-[10px] text-ink/55 md:text-[12px]">{label}</p>
+      <div className="text-[14px] leading-[1.5] text-ink/90 [overflow-wrap:anywhere] md:text-[16px]">{children}</div>
       {link && (
-        <a href={link.href} className="text-[14px] font-semibold text-primary" rel="noopener">
+        <a href={link.href} className="text-[13px] font-semibold text-primary hover:text-coral md:text-[14px]" rel="noopener">
           {link.label} →
         </a>
       )}
@@ -478,11 +522,13 @@ function GoodToKnow({ section, lang, settings, number }: SectionProps<"faqSectio
   const instagram = settings?.socials?.find((url) => url.includes("instagram"));
   return (
     <section className="bg-white">
-      <div className={`${CONTAINER} flex flex-col gap-[72px] py-20 md:py-28 lg:flex-row`}>
-        <div className="flex w-full flex-col gap-10 lg:w-[500px] lg:shrink-0">
+      {/* Below lg both columns dissolve (display: contents) so their parts can be reordered:
+          the photo moves under the questions, as in the phone design. */}
+      <div className={`${CONTAINER} flex flex-col gap-5 pb-12 pt-14 md:py-28 lg:flex-row lg:gap-[72px]`}>
+        <div className="contents lg:flex lg:w-[500px] lg:shrink-0 lg:flex-col lg:gap-10">
           <SectionHead heading={section.heading} number={number} size="md" />
           {section.showContactInfo && settings && (
-            <div data-stagger className="grid gap-3 sm:grid-cols-2">
+            <div data-stagger className="grid grid-cols-2 gap-2.5 sm:gap-3">
               {settings.address?.street && (
                 <InfoCard label={t.address} link={settings.mapsUrl ? { href: settings.mapsUrl, label: t.routePlan } : null}>
                   <address className="not-italic">
@@ -510,15 +556,15 @@ function GoodToKnow({ section, lang, settings, number }: SectionProps<"faqSectio
             </div>
           )}
           {section.showContactInfo && section.image?.asset && (
-            <div data-parallax className="h-[260px] overflow-hidden rounded-[24px]">
+            <div data-parallax className="order-last h-[200px] overflow-hidden rounded-[24px] md:h-[260px] lg:order-none">
               <SanityImage image={section.image} width={1000} height={520} sizes="(min-width: 1024px) 500px, 100vw" className="size-full object-cover" />
             </div>
           )}
         </div>
-        <div className="flex flex-1 flex-col gap-2">
+        <div className="contents lg:flex lg:flex-1 lg:flex-col lg:gap-2">
           <Faqs faqs={section.items} numbered />
           {section.cta && (
-            <div className="flex flex-wrap items-center gap-4 pt-8">
+            <div className="flex flex-wrap items-center gap-4 lg:pt-8">
               <p className="text-[16px] font-medium text-ink/70">{t.moreQuestions}</p>
               <Button link={section.cta} trialUrl={settings?.trialUrl} variant="ghostDark" />
             </div>
@@ -545,8 +591,8 @@ type CtaPanelProps = {
 export function CtaPanel({ heading, intro, link, note, trialUrl }: CtaPanelProps) {
   return (
     <section className={`${INSET} mt-4 bg-lavender text-white`}>
-      <div className={`${CONTAINER} flex flex-col justify-between gap-10 py-20 md:py-[120px] lg:flex-row lg:items-end`}>
-        <h2 data-reveal className="max-w-[820px] text-[clamp(56px,7.8vw,112px)] font-bold leading-[0.9] tracking-[-0.05em]">
+      <div className={`${CONTAINER} flex flex-col justify-between gap-[22px] pb-10 pt-12 max-md:px-6 md:gap-10 md:py-[120px] lg:flex-row lg:items-end`}>
+        <h2 data-reveal className="max-w-[820px] text-[clamp(48px,7.8vw,112px)] font-bold leading-[0.92] tracking-[-0.045em] md:leading-[0.9] md:tracking-[-0.05em]">
           {heading?.text}
           {heading?.emphasis && (
             <>
@@ -555,10 +601,10 @@ export function CtaPanel({ heading, intro, link, note, trialUrl }: CtaPanelProps
             </>
           )}
         </h2>
-        <div data-reveal className="flex max-w-[330px] flex-col items-start gap-6">
-          {intro && <p className="text-[18px] leading-[1.5]">{intro}</p>}
-          <Button link={link} trialUrl={trialUrl} variant="sun" />
-          {note && <p className="font-mono text-[11px] font-medium uppercase tracking-[0.06em]">{note}</p>}
+        <div data-reveal className="flex flex-col items-start gap-[22px] sm:max-w-[330px] md:gap-6">
+          {intro && <p className="text-[16px] leading-[1.5] md:text-[18px]">{intro}</p>}
+          <Button link={link} trialUrl={trialUrl} variant="sun" full="mobile" />
+          {note && <p className="font-mono text-[10px] font-medium uppercase tracking-[0.05em] md:text-[11px] md:tracking-[0.06em]">{note}</p>}
         </div>
       </div>
     </section>

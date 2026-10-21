@@ -64,7 +64,10 @@ body:has(main > [data-hero="dark"]:not([style*="display: none"])) .site-header {
   color: white;
 }
 main:not(:has(> [data-hero="dark"]:not([style*="display: none"]))) {
-  padding-top: 80px;
+  padding-top: 56px;
+  @media (width >= 48rem) {
+    padding-top: 80px;
+  }
 }
 
 details > summary {

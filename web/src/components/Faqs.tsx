@@ -18,19 +18,19 @@ export function Faqs({ faqs, numbered, size = "md", openFirst }: Props) {
       {faqs.map((faq, i) =>
         faq ? (
           <details key={faq._id} open={openFirst && i === 0} className="group rounded-[20px] border border-ink/7 bg-white">
-            <summary className="flex cursor-pointer items-center justify-between gap-1 px-[25px] py-[22px] leading-[normal]">
+            <summary className="flex cursor-pointer items-center justify-between gap-3 py-[18px] pl-5 pr-[18px] leading-[normal] md:gap-1 md:px-[25px] md:py-[22px]">
               <span className="flex items-center gap-5">
-                {numbered && <span className="eyebrow text-ink/40">{String(i + 1).padStart(2, "0")}</span>}
-                <span className={`font-medium tracking-[-0.01em] group-open:font-semibold ${size === "lg" ? "text-[20px]" : "text-[18px]"}`}>
+                {numbered && <span className="eyebrow hidden text-ink/40 md:inline">{String(i + 1).padStart(2, "0")}</span>}
+                <span className={`font-medium tracking-[-0.01em] group-open:font-semibold ${size === "lg" ? "text-[17px] md:text-[20px]" : "text-[15px] md:text-[18px]"}`}>
                   {faq.question}
                 </span>
               </span>
-              <span aria-hidden className="text-[24px] text-ink/60 group-open:text-ink">
+              <span aria-hidden className="text-[22px] text-ink/60 group-open:text-ink md:text-[24px]">
                 <span className="group-open:hidden">+</span>
                 <span className="hidden group-open:inline">–</span>
               </span>
             </summary>
-            <div className={`-mt-2 px-[25px] pb-[22px] text-[16px] leading-[1.55] text-ink/70 ${numbered ? "md:pl-[61px]" : ""} [&_p]:max-w-[560px]`}>
+            <div className={`-mt-2 px-5 pb-[18px] text-[15px] leading-[1.55] text-ink/70 md:px-[25px] md:pb-[22px] md:text-[16px] ${numbered ? "md:pl-[61px]" : ""} [&_p]:max-w-[560px]`}>
               <RichText value={faq.answer} />
             </div>
           </details>
