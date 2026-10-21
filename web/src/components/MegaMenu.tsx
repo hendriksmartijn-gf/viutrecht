@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { NAVIGATION_QUERY_RESULT, SETTINGS_QUERY_RESULT } from "../../sanity.types";
 import { pathFor, UI, type Language } from "@/sanity/i18n";
 import { emojiFor, hrefFor } from "./CtaLink";
+import { MegaMenuCloser } from "./MegaMenuCloser";
 import { SanityImage } from "./SanityImage";
 
 export type ClassesMenuValue = NonNullable<NonNullable<NAVIGATION_QUERY_RESULT>["classesMenu"]>;
@@ -24,7 +25,8 @@ export function quickLinkDescription(item: QuickLink, settings: Settings, lang: 
 
 type Props = { menu: ClassesMenuValue; lang: Language; settings: Settings };
 
-// Opens on hover and on keyboard focus (focus-within), so it needs no client JavaScript. The
+// Opens with CSS on hover and on keyboard focus (focus-visible, so a mouse click never pins it
+// open); MegaMenuCloser closes it after a click. The
 // panel is positioned against the header (this <li> is static), spanning its full width.
 export function MegaMenu({ menu, lang, settings }: Props) {
   const t = UI[lang];
@@ -39,18 +41,20 @@ export function MegaMenu({ menu, lang, settings }: Props) {
 
   return (
     <li data-mega className="group/mega">
+      <MegaMenuCloser />
       {/* The ::after bridges the gap down to the panel, so moving the mouse there keeps it open. */}
       {overview ? (
-        <Link href={overview} className="relative flex items-center gap-1 transition-colors after:absolute after:-inset-x-4 after:top-full after:h-8 after:content-[''] hover:opacity-80 group-hover/mega:font-semibold group-hover/mega:text-primary group-hover/mega:opacity-100 group-focus-within/mega:text-primary">
-          {menu.label} <span aria-hidden className="text-[11px] transition-transform group-hover/mega:rotate-180 group-focus-within/mega:rotate-180">▾</span>
+        <Link href={overview} className="relative flex items-center gap-1 transition-colors after:absolute after:-inset-x-4 after:top-full after:h-8 after:content-[''] hover:opacity-80 group-hover/mega:font-semibold group-hover/mega:text-primary group-hover/mega:opacity-100 group-has-focus-visible/mega:text-primary">
+          {menu.label} <span aria-hidden className="text-[11px] transition-transform group-hover/mega:rotate-180 group-has-focus-visible/mega:rotate-180">▾</span>
         </Link>
       ) : (
         <span className="flex items-center gap-1">{menu.label} ▾</span>
       )}
       {/* Page dim below the header while the menu is open. */}
-      <div aria-hidden className="pointer-events-none invisible absolute inset-x-0 top-full h-screen bg-ink/25 opacity-0 transition-[opacity,visibility] delay-150 duration-300 group-focus-within/mega:visible group-focus-within/mega:opacity-100 group-focus-within/mega:delay-0 group-hover/mega:visible group-hover/mega:opacity-100 group-hover/mega:delay-0" />
-      <div className="invisible absolute inset-x-4 top-full pt-2 opacity-0 transition-[opacity,visibility,translate] delay-150 duration-300 motion-safe:-translate-y-1 group-focus-within/mega:visible group-focus-within/mega:translate-y-0 group-focus-within/mega:opacity-100 group-focus-within/mega:delay-0 group-hover/mega:visible group-hover/mega:translate-y-0 group-hover/mega:opacity-100 group-hover/mega:delay-0">
-        <div className="mx-auto flex max-w-[1408px] gap-3 rounded-[32px] bg-white p-3 text-ink shadow-[0_24px_48px_rgba(0,0,0,0.12)]">
+      <div aria-hidden className="pointer-events-none invisible absolute inset-x-0 top-full h-screen group-data-closed/mega:invisible! group-data-closed/mega:opacity-0! bg-ink/25 opacity-0 transition-[opacity,visibility] delay-150 duration-300 group-has-focus-visible/mega:visible group-has-focus-visible/mega:opacity-100 group-has-focus-visible/mega:delay-0 group-hover/mega:visible group-hover/mega:opacity-100 group-hover/mega:delay-0" />
+      <div className="invisible absolute inset-x-4 top-full pt-2 opacity-0 group-data-closed/mega:invisible! group-data-closed/mega:opacity-0! group-data-closed/mega:delay-0! transition-[opacity,visibility,translate] delay-150 duration-300 motion-safe:-translate-y-1 group-has-focus-visible/mega:visible group-has-focus-visible/mega:translate-y-0 group-has-focus-visible/mega:opacity-100 group-has-focus-visible/mega:delay-0 group-hover/mega:visible group-hover/mega:translate-y-0 group-hover/mega:opacity-100 group-hover/mega:delay-0">
+        {/* Never taller than the screen, so there is always page left to move the mouse to. */}
+        <div className="mx-auto flex max-h-[calc(100dvh-11rem)] max-w-[1408px] gap-3 overflow-y-auto overscroll-contain rounded-[32px] bg-white p-3 text-ink shadow-[0_24px_48px_rgba(0,0,0,0.12)]">
           {/* Lessen */}
           <div className="flex min-w-0 flex-1 flex-col gap-1 px-2 pb-3 pt-5">
             <div className="flex items-center justify-between px-3 pb-3">

@@ -70,8 +70,8 @@ body:has(main > [data-hero="dark"]:not([style*="display: none"])) .site-header {
   top: 0;
 }
 .site-header[data-solid],
-.site-header:has([data-mega]:hover),
-.site-header:has([data-mega]:focus-within) {
+.site-header:has([data-mega]:not([data-closed]):hover),
+.site-header:has([data-mega] :focus-visible) {
   color: var(--color-ink) !important;
   background-color: var(--color-paper) !important;
 }
