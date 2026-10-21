@@ -10,6 +10,10 @@ import {ImageIcon} from '@sanity/icons/Image'
 import {OlistIcon} from '@sanity/icons/Olist'
 import {RocketIcon} from '@sanity/icons/Rocket'
 import {UsersIcon} from '@sanity/icons/Users'
+import {DocumentTextIcon} from '@sanity/icons/DocumentText'
+import {StarIcon} from '@sanity/icons/Star'
+import {BlockquoteIcon} from '@sanity/icons/Blockquote'
+import {TextIcon} from '@sanity/icons/Text'
 import {DISCIPLINES, sameLanguage} from '../../lib/fields'
 
 const heading = defineField({name: 'heading', title: 'Kop', type: 'sectionHeading'})
@@ -56,6 +60,92 @@ export const heroSection = defineType({
     }),
   ],
   preview: headingPreview('Hero'),
+})
+
+// Light page opener for content pages (e.g. Over ons): breadcrumb, H1, intro, buttons and a
+// wide photo. The homepage uses the full-bleed heroSection instead.
+export const introSection = defineType({
+  name: 'introSection',
+  title: 'Pagina-intro',
+  type: 'object',
+  icon: TextIcon,
+  fields: [
+    defineField({
+      ...heading,
+      description: 'Wordt de H1. Bijv. "Welkom bij VI," + "jouw nieuwe favoriete gym."',
+      validation: (rule) => rule.required(),
+    }),
+    intro,
+    defineField({name: 'primaryCta', title: 'Primaire knop', type: 'link'}),
+    defineField({name: 'secondaryCta', title: 'Secundaire knop', type: 'link'}),
+    defineField({name: 'image', title: 'Brede foto', type: 'imageWithAlt'}),
+  ],
+  preview: headingPreview('Pagina-intro'),
+})
+
+export const storySection = defineType({
+  name: 'storySection',
+  title: 'Verhaal',
+  type: 'object',
+  icon: DocumentTextIcon,
+  fields: [
+    heading,
+    defineField({name: 'lead', title: 'Openingszin', type: 'text', rows: 3}),
+    defineField({name: 'body', title: 'Tekst', type: 'text', rows: 4}),
+    defineField({
+      name: 'card',
+      title: 'Kaart ernaast',
+      type: 'object',
+      description: 'Bijv. "Waarom VI?" met het motto.',
+      fields: [
+        defineField({name: 'label', type: 'string'}),
+        defineField({name: 'showLogo', title: 'Toon VI-logo', type: 'boolean', initialValue: true}),
+        defineField({name: 'title', title: 'Titel', type: 'string', description: 'Bijv. "Vires acquirit eundo."'}),
+        defineField({name: 'subtitle', title: 'Ondertitel', type: 'string'}),
+        defineField({name: 'text', title: 'Tekst', type: 'text', rows: 4}),
+      ],
+    }),
+  ],
+  preview: headingPreview('Verhaal'),
+})
+
+export const valuesSection = defineType({
+  name: 'valuesSection',
+  title: 'Waarden',
+  type: 'object',
+  icon: StarIcon,
+  fields: [
+    heading,
+    defineField({
+      name: 'values',
+      title: 'Waarden',
+      type: 'array',
+      of: [
+        defineArrayMember({
+          type: 'object',
+          name: 'value',
+          fields: [
+            defineField({name: 'title', type: 'string', validation: (rule) => rule.required()}),
+            defineField({name: 'description', title: 'Omschrijving', type: 'text', rows: 3}),
+          ],
+        }),
+      ],
+      validation: (rule) => rule.max(6),
+    }),
+  ],
+  preview: headingPreview('Waarden'),
+})
+
+export const statementSection = defineType({
+  name: 'statementSection',
+  title: 'Statement',
+  type: 'object',
+  icon: BlockquoteIcon,
+  fields: [
+    defineField({name: 'text', title: 'Tekst', type: 'text', rows: 3, validation: (rule) => rule.required()}),
+    defineField({name: 'closing', title: 'Afsluiter', type: 'string', description: 'Bijv. "Welkom bij VI."'}),
+  ],
+  preview: {select: {title: 'closing', subtitle: 'text'}},
 })
 
 export const marqueeSection = defineType({
@@ -265,6 +355,7 @@ export const textSection = defineType({
 
 export const sectionTypes = [
   heroSection,
+  introSection,
   marqueeSection,
   disciplinesSection,
   stepsSection,
@@ -272,7 +363,10 @@ export const sectionTypes = [
   testimonialsSection,
   pricingSection,
   faqSection,
+  storySection,
+  valuesSection,
   coachesSection,
+  statementSection,
   newsSection,
   ctaSection,
   textSection,

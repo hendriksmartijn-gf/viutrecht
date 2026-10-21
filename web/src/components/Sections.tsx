@@ -10,17 +10,26 @@ import { RichText } from "./RichText";
 import { SanityImage } from "./SanityImage";
 import { SectionHead } from "./SectionHead";
 import { PlanCard } from "./MembershipCard";
+import { Carousel } from "./Carousel";
 
 export type Section = NonNullable<NonNullable<HOME_QUERY_RESULT>["sections"]>[number];
 type Settings = SETTINGS_QUERY_RESULT;
-type Props = { sections: Section[] | null | undefined; lang: Language; settings: Settings };
+type Props = {
+  sections: Section[] | null | undefined;
+  lang: Language;
+  settings: Settings;
+  // For the breadcrumb in a page intro ("Home / Over ons").
+  pageTitle?: string | null;
+};
 
 // Shared widths from the design: 1280 content column, and "inset" panels that sit
 // 16px from the viewport edge with 48px corners.
 export const CONTAINER = "mx-auto w-full max-w-[1280px] px-6 md:px-12";
+// Content pages (Over ons) sit 128px from the viewport edge instead of inside the 1280 column.
+const WIDE = "mx-auto w-full max-w-[1440px] px-6 md:px-12 lg:px-32";
 export const INSET = "mx-2 overflow-hidden rounded-[32px] md:mx-4 md:rounded-[48px]";
 
-export function Sections({ sections, lang, settings }: Props) {
+export function Sections({ sections, lang, settings, pageTitle }: Props) {
   if (!sections?.length) return null;
   // Section labels are numbered in page order: "[ 01 ] Je eerste week".
   let counter = 0;
@@ -34,6 +43,14 @@ export function Sections({ sections, lang, settings }: Props) {
     switch (section._type) {
       case "heroSection":
         return <Hero key={section._key} section={section} isFirst={index === 0} {...props} />;
+      case "introSection":
+        return <Intro key={section._key} section={section} isFirst={index === 0} pageTitle={pageTitle} {...props} />;
+      case "storySection":
+        return <Story key={section._key} section={section} {...props} />;
+      case "valuesSection":
+        return <Values key={section._key} section={section} {...props} />;
+      case "statementSection":
+        return <Statement key={section._key} section={section} />;
       case "marqueeSection":
         return <Marquee key={section._key} section={section} />;
       case "stepsSection":
@@ -470,23 +487,141 @@ function Schedule({ section, lang, settings, number }: SectionProps<"scheduleSec
   );
 }
 
-function Coaches({ section, number }: SectionProps<"coachesSection">) {
+function Coaches({ section, lang, number }: SectionProps<"coachesSection">) {
+  const t = UI[lang];
+  const items = section.items?.filter(Boolean) ?? [];
+  if (!items.length) return null;
   return (
-    <section className="bg-white">
+    <section id="coaches" className={`${INSET} scroll-mt-24 bg-sand`}>
       <div className={`${CONTAINER} flex flex-col gap-14 py-20 md:py-28`}>
-        <SectionHead heading={section.heading} number={number} />
-        <ul data-stagger className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {section.items?.map((c) =>
+        <Carousel prevLabel={t.previous} nextLabel={t.next} header={<SectionHead heading={section.heading} number={number} stacked className="max-w-[720px]" />}>
+          {items.map((c) =>
             c ? (
-              <li key={c._id} className="flex flex-col gap-3">
-                <SanityImage image={c.photo} width={600} height={750} sizes="(min-width: 1024px) 25vw, 50vw" className="w-full rounded-[28px] object-cover" />
-                <h3 className="text-[20px] font-semibold">{c.name}</h3>
-                {c.role && <p className="eyebrow text-ink/55">{c.role}</p>}
+              <li key={c._id} className="group relative flex h-[400px] w-[78%] shrink-0 snap-start flex-col justify-between overflow-hidden rounded-[28px] bg-ink p-[22px] sm:w-[calc((100%-16px)/2)] lg:w-[calc((100%-48px)/4)]">
+                <div aria-hidden className="absolute inset-0">
+                  <SanityImage image={c.photo} width={600} height={800} sizes="(min-width: 1024px) 284px, (min-width: 640px) 50vw, 80vw" className="size-full object-cover transition-transform duration-700 ease-out group-hover:scale-105" />
+                  <div className="absolute inset-0 bg-gradient-to-b from-ink/0 from-45% to-ink/88" />
+                </div>
+                {c.role && (
+                  <span className="relative self-start rounded-full bg-white px-3 py-[7px] font-mono text-[10px] font-medium uppercase tracking-[0.03em] text-ink">
+                    {c.role}
+                  </span>
+                )}
+                <h3 className="relative max-w-[220px] text-[26px] font-bold leading-[1.05] tracking-[-0.025em] text-white">{c.name}</h3>
               </li>
             ) : null,
           )}
-        </ul>
+        </Carousel>
       </div>
+    </section>
+  );
+}
+
+function Intro({ section, lang, settings, isFirst, pageTitle }: SectionProps<"introSection"> & { isFirst: boolean; pageTitle?: string | null }) {
+  const t = UI[lang];
+  const Title = isFirst ? "h1" : "h2";
+  return (
+    <section className={`${WIDE} flex flex-col gap-12 pb-10 pt-12 md:pt-[88px]`}>
+      <div className="flex flex-col gap-7">
+        {pageTitle && (
+          <nav data-hero-item aria-label={t.breadcrumb}>
+            <ol className="flex items-center gap-2.5 font-mono text-[12px] font-medium uppercase tracking-[0.06em]">
+              <li className="text-ink/45">
+                <Link href={pathFor("homePage", lang)} className="hover:text-ink">{t.home}</Link>
+              </li>
+              <li aria-hidden className="text-ink/30">/</li>
+              <li aria-current="page" className="text-ink/85">{pageTitle}</li>
+            </ol>
+          </nav>
+        )}
+        <Title data-hero-item className="max-w-[1100px] text-[clamp(52px,6.67vw,96px)] font-bold leading-[0.96] tracking-[-0.045em]">
+          {section.heading?.text}
+          {section.heading?.emphasis && (
+            <>
+              <br />
+              <em className="display-emphasis text-[1.0625em] tracking-[-0.01em] text-primary">{section.heading.emphasis}</em>
+            </>
+          )}
+        </Title>
+      </div>
+      <div data-hero-item className="flex flex-col justify-between gap-8 lg:flex-row lg:items-end">
+        {section.intro && <p className="max-w-[520px] text-[20px] leading-[1.5] text-ink/72">{section.intro}</p>}
+        <div className="flex flex-wrap gap-3">
+          <Button link={section.primaryCta} trialUrl={settings?.trialUrl} />
+          <Button link={section.secondaryCta} trialUrl={settings?.trialUrl} variant="ghostDark" />
+        </div>
+      </div>
+      {section.image?.asset && (
+        <div data-hero-media className="h-[clamp(260px,29vw,420px)] overflow-hidden rounded-[40px]">
+          <SanityImage image={section.image} width={2368} height={840} priority={isFirst} sizes="(min-width: 1280px) 1184px, 100vw" className="size-full object-cover" />
+        </div>
+      )}
+    </section>
+  );
+}
+
+function Story({ section, number }: SectionProps<"storySection">) {
+  const card = section.card;
+  return (
+    <section className={`${INSET} mt-[72px] bg-sand`}>
+      <div className="mx-auto flex max-w-[1408px] flex-col justify-between gap-12 px-6 py-20 md:px-12 md:py-28 lg:flex-row lg:px-28">
+        <div className="flex max-w-[560px] flex-col gap-7">
+          <SectionHead heading={section.heading} number={number} size="md" stacked className="[&_h2]:leading-[1.04]" />
+          {section.lead && <p data-reveal className="text-[19px] font-medium leading-[1.55]">{section.lead}</p>}
+          {section.body && <p data-reveal className="text-[17px] leading-[1.6] text-ink/72">{section.body}</p>}
+        </div>
+        {card && (card.title || card.text) && (
+          <aside data-reveal className="flex flex-col gap-6 rounded-[32px] bg-lilac p-10 lg:w-[500px] lg:shrink-0">
+            {card.label && <p className="eyebrow text-ink/60">{card.label}</p>}
+            {card.showLogo && <Image src="/brand/logo-footer.svg" alt="VI" width={104.4} height={96} unoptimized />}
+            {card.title && <p className="display-emphasis text-[52px] leading-none tracking-[-0.015em]">{card.title}</p>}
+            {card.subtitle && <p className="text-[20px] font-semibold tracking-[-0.01em]">{card.subtitle}</p>}
+            {card.text && <p className="text-[16px] leading-[1.6] text-ink/75">{card.text}</p>}
+          </aside>
+        )}
+      </div>
+    </section>
+  );
+}
+
+function Values({ section, number }: SectionProps<"valuesSection">) {
+  return (
+    <section className={`${WIDE} flex flex-col gap-14 pb-28 pt-[120px]`}>
+      <div data-reveal className="flex flex-col gap-6">
+        {section.heading?.eyebrow && (
+          <p className="eyebrow text-ink/60">
+            {number ? `[ ${String(number).padStart(2, "0")} ] ` : ""}
+            {section.heading.eyebrow}
+          </p>
+        )}
+        <h2 className="max-w-[1080px] text-[clamp(44px,5vw,72px)] font-bold leading-none tracking-[-0.04em]">
+          {section.heading?.text}
+          {section.heading?.emphasis && (
+            <>
+              <br />
+              <em className="display-emphasis text-[1.055em] tracking-[-0.01em] text-primary">{section.heading.emphasis}</em>
+            </>
+          )}
+        </h2>
+      </div>
+      <ol data-stagger className="grid items-start gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {section.values?.map((value, i) => (
+          <li key={value._key} className="flex flex-col gap-3.5 rounded-[28px] border border-ink/7 bg-white px-7 pb-8 pt-7">
+            <span aria-hidden className="display-emphasis text-[64px] leading-none text-primary">{String(i + 1).padStart(2, "0")}</span>
+            <h3 className="text-[22px] font-semibold leading-[1.2] tracking-[-0.02em]">{value.title}</h3>
+            {value.description && <p className="text-[15px] leading-[1.55] text-ink/70">{value.description}</p>}
+          </li>
+        ))}
+      </ol>
+    </section>
+  );
+}
+
+function Statement({ section }: { section: Of<"statementSection"> }) {
+  return (
+    <section data-reveal className={`${WIDE} flex flex-col gap-8 pb-[104px] pt-[120px]`}>
+      <p className="max-w-[1000px] font-serif text-[clamp(32px,3.35vw,48px)] leading-[1.12] tracking-[-0.015em]">{section.text}</p>
+      {section.closing && <p className="text-[clamp(48px,5vw,72px)] font-bold leading-none tracking-[-0.045em]">{section.closing}</p>}
     </section>
   );
 }

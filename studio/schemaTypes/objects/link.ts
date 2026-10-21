@@ -44,7 +44,8 @@ export const link = defineType({
       name: 'url',
       title: 'URL',
       type: 'url',
-      validation: (rule) => rule.uri({scheme: ['https', 'mailto', 'tel']}),
+      // Relative paths allowed for anchors on the site, e.g. /over-ons#coaches.
+      validation: (rule) => rule.uri({scheme: ['https', 'mailto', 'tel'], allowRelative: true}),
       hidden: ({parent}) => parent?.linkType !== 'external',
     }),
   ],

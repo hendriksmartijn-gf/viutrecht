@@ -95,6 +95,10 @@ const SECTIONS = /* groq */ `sections[]{
   heading,
   intro,
   _type == "heroSection" => {eyebrow, showRating, trustItems[]{_key, _type, label, value, name, "logo": logo.asset->{url, "width": metadata.dimensions.width, "height": metadata.dimensions.height}}, image${IMAGE}, primaryCta${LINK}, secondaryCta${LINK}},
+  _type == "introSection" => {primaryCta${LINK}, secondaryCta${LINK}, image${IMAGE}},
+  _type == "storySection" => {lead, body, card},
+  _type == "valuesSection" => {values[]{_key, title, description}},
+  _type == "statementSection" => {text, closing},
   _type == "marqueeSection" => {"items": *[_type == "discipline" && language == $lang] | order(orderRank asc){_id, title}},
   _type == "disciplinesSection" => {
     cta${LINK},

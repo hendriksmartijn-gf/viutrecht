@@ -154,7 +154,7 @@ function crumbs(
 
 function PageView({ doc, lang, settings }: { doc: NonNullable<PAGE_QUERY_RESULT>; lang: Language; settings: SETTINGS_QUERY_RESULT }) {
   const path = pathFor("page", lang, doc.slug);
-  const startsWithHero = doc.sections?.[0]?._type === "heroSection";
+  const startsWithHero = ["heroSection", "introSection"].includes(doc.sections?.[0]?._type ?? "");
   const faqs = doc.sections?.flatMap((s) => (s._type === "faqSection" ? (s.items ?? []) : []));
   return (
     <>
@@ -167,7 +167,7 @@ function PageView({ doc, lang, settings }: { doc: NonNullable<PAGE_QUERY_RESULT>
       />
       {/* Pages without a hero still get exactly one H1. */}
       {!startsWithHero && <h1 className="mx-auto w-full max-w-[1280px] px-6 py-12 text-5xl font-bold tracking-[-0.04em] md:px-12">{doc.title}</h1>}
-      <Sections sections={doc.sections} lang={lang} settings={settings} />
+      <Sections sections={doc.sections} lang={lang} settings={settings} pageTitle={doc.title} />
       <RichText value={doc.body} />
     </>
   );

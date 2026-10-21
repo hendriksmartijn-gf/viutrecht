@@ -123,6 +123,8 @@ export const UI = {
     whatToBringLabel: "Wat neem je mee",
     maxGroup: "Max",
     breadcrumb: "Kruimelpad",
+    previous: "Vorige",
+    next: "Volgende",
   },
   en: {
     trial: "Book a free trial week",
@@ -187,5 +189,7 @@ export const UI = {
     whatToBringLabel: "What to bring",
     maxGroup: "Max",
     breadcrumb: "Breadcrumb",
+    previous: "Previous",
+    next: "Next",
   },
 } satisfies Record<Language, Record<string, string>>;
