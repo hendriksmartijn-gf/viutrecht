@@ -151,6 +151,8 @@ function TrustRow({ section, settings, t }: { section: Of<"heroSection">; settin
   const logos = items.flatMap((item) => (item._type === "trustLogo" && item.logo?.url ? [item] : []));
   const facts = [
     ...items.flatMap((item) => (item._type === "keyFact" ? [{ key: item._key, value: item.value, label: item.label }] : [])),
+    // A logo slot without its file yet shows the name, so nothing disappears in the meantime.
+    ...items.flatMap((item) => (item._type === "trustLogo" && !item.logo?.url ? [{ key: item._key, value: item.name, label: null }] : [])),
     ...(section.showRating && settings?.rating?.value
       ? [{ key: "rating", value: `★ ${settings.rating.value.toFixed(1)}`, label: `Google ${t.reviews}` }]
       : []),
@@ -169,7 +171,7 @@ function TrustRow({ section, settings, t }: { section: Of<"heroSection">; settin
                 alt={item.name ?? ""}
                 width={item.logo!.width ?? undefined}
                 height={item.logo!.height ?? undefined}
-                className="h-9 w-auto opacity-90"
+                className="h-7 w-auto md:h-9"
               />
             </li>
           ))}

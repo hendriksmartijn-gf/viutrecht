@@ -10,7 +10,8 @@ const VARIANTS = {
   primary: { button: "bg-primary text-white", disc: "bg-white" },
   primaryOnSand: { button: "bg-primary text-white", disc: "bg-white" },
   ghostDark: { button: "border border-ink/25 text-ink hover:border-coral", disc: "bg-lilac group-hover:bg-white" },
-  ghostLight: { button: "border border-white/60 bg-white/8 text-white hover:border-coral", disc: "" },
+  // Transparent on the dark hero, with the same white disc and size as the primary button.
+  ghostLight: { button: "border border-white/60 bg-white/8 text-white backdrop-blur-[8px] hover:border-coral", disc: "bg-white" },
   sun: { button: "bg-sun text-black", disc: "bg-white" },
 } as const;
 
@@ -39,7 +40,7 @@ export function Button({
   emoji,
   variant = "primary",
   size = "md",
-  arrow = variant !== "ghostLight",
+  arrow = true,
   full,
   stretched,
   className = "",
