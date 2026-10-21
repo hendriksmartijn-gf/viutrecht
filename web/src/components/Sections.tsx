@@ -148,7 +148,7 @@ function TrustRow({ section, settings, t }: { section: Of<"heroSection">; settin
   const facts = [
     ...items.flatMap((item) => (item._type === "keyFact" ? [{ key: item._key, value: item.value, label: item.label }] : [])),
     ...(section.showRating && settings?.rating?.value
-      ? [{ key: "rating", value: `★ ${settings.rating.value.toLocaleString("en")}`, label: `Google ${t.reviews}` }]
+      ? [{ key: "rating", value: `★ ${settings.rating.value.toFixed(1)}`, label: `Google ${t.reviews}` }]
       : []),
   ];
   if (!logos.length && !facts.length) return null;
@@ -272,57 +272,94 @@ function Disciplines({ section, lang, settings, number }: SectionProps<"discipli
   );
 }
 
+// Real reviews are often longer than the design's sample quotes, so the type steps down with
+// length instead of letting a card grow out of proportion.
+const quoteSize = (quote: string | null | undefined) => {
+  const length = quote?.length ?? 0;
+  if (length <= 140) return "text-[32px] leading-[1.12]";
+  if (length <= 300) return "text-[26px] leading-[1.15]";
+  return "text-[21px] leading-[1.25]";
+};
+
 function Testimonials({ section, lang, settings, number }: SectionProps<"testimonialsSection">) {
   const t = UI[lang];
   const rating = section.showRating ? settings?.rating : null;
   const items = section.items?.filter(Boolean) ?? [];
   if (!items.length && !rating?.value) return null;
   const tones = ["bg-sand", "bg-lilac"];
+  const card = "flex min-h-[440px] w-[85%] shrink-0 snap-start flex-col justify-between gap-8 rounded-[32px] p-9";
   return (
     <section className="bg-white">
       <div className={`${CONTAINER} flex flex-col gap-14 py-20 md:py-28`}>
-        <SectionHead heading={section.heading} number={number} stacked className="max-w-[640px]" />
-        <div data-stagger className="flex flex-col gap-4 lg:flex-row">
+        <Carousel prevLabel={t.previous} nextLabel={t.next} header={<SectionHead heading={section.heading} number={number} stacked className="max-w-[640px]" />}>
           {rating?.value && (
-            <div className="flex h-[440px] shrink-0 flex-col justify-between rounded-[32px] bg-lavender p-9 text-white lg:w-[330px]">
+            <li className={`${card} bg-lavender text-white sm:w-[330px]`}>
               <p className="eyebrow text-white/70">{t.googleScore}</p>
               <div className="flex flex-col gap-2">
-                <p className="font-serif text-[160px] leading-[0.9] tracking-[-0.03em]">{rating.value.toLocaleString("en")}</p>
-                <p aria-label={`${rating.value} / 5`} className="text-[22px] tracking-[0.1em]">★★★★★</p>
-                {rating.count ? <p className="text-[15px] text-white/75">{t.basedOn} {rating.count}+ {t.reviews}</p> : null}
+                <p className="font-serif text-[160px] leading-[0.9] tracking-[-0.03em]">{rating.value.toFixed(1)}</p>
+                <p aria-label={`${rating.value} / 5`} className="text-[22px] tracking-[0.1em]">
+                  {"★".repeat(Math.round(rating.value))}
+                </p>
+                {rating.count ? (
+                  <p className="text-[15px] text-white/75">
+                    {t.basedOn} {rating.count} {t.reviews}
+                  </p>
+                ) : null}
               </div>
-              {settings?.reviewsUrl ? <a href={settings.reviewsUrl} className="text-[15px] font-semibold">{t.readReviews} →</a> : <span />}
-            </div>
+              {settings?.reviewsUrl ? (
+                <a href={settings.reviewsUrl} className="text-[15px] font-semibold hover:text-sun" rel="noopener">
+                  {t.readReviews} →
+                </a>
+              ) : (
+                <span />
+              )}
+            </li>
           )}
           {items.map((item, i) =>
             item ? (
-              <figure key={item._id} className={`flex min-h-[440px] flex-1 flex-col justify-between gap-8 rounded-[32px] p-9 ${tones[i % tones.length]}`}>
-                <blockquote lang={item.quoteLanguage ?? undefined} className="font-serif text-[32px] leading-[1.12] tracking-[-0.015em]">
-                  “{item.quote}”
-                </blockquote>
-                <figcaption className="flex items-center gap-3.5">
-                  {item.photo?.asset ? (
-                    <SanityImage image={item.photo} width={88} height={88} sizes="44px" className="size-11 rounded-full object-cover" />
-                  ) : (
-                    <Image src="/brand/avatar-placeholder.svg" alt="" width={44} height={44} unoptimized />
-                  )}
-                  <span className="flex flex-col gap-1">
-                    <span className="text-[16px] font-semibold">{item.authorName}</span>
-                    {item.memberSince && (
-                      <span className="font-mono text-[11px] font-medium uppercase tracking-[0.03em] text-ink/55">
-                        {t.memberSince} {item.memberSince}
+              <li key={item._id} className={`${card} sm:w-[411px] ${tones[i % tones.length]}`}>
+                <figure className="flex h-full flex-col justify-between gap-8">
+                  <blockquote lang={item.quoteLanguage ?? undefined} className={`font-serif tracking-[-0.015em] ${quoteSize(item.quote)}`}>
+                    “{item.quote}”
+                  </blockquote>
+                  <figcaption className="flex items-center gap-3.5">
+                    {item.photo?.asset ? (
+                      <SanityImage image={item.photo} width={88} height={88} sizes="44px" className="size-11 rounded-full object-cover" />
+                    ) : (
+                      <span aria-hidden className="flex size-11 items-center justify-center rounded-full bg-white/70 text-[16px] font-semibold">
+                        {item.authorName?.charAt(0)}
                       </span>
                     )}
-                  </span>
-                </figcaption>
-              </figure>
+                    <span className="flex flex-col gap-1">
+                      <span className="text-[16px] font-semibold">{item.authorName}</span>
+                      {item.memberSince && (
+                        <span className="font-mono text-[11px] font-medium uppercase tracking-[0.03em] text-ink/55">
+                          {[item.discipline && DISCIPLINE_LABELS[item.discipline], `${t.memberSince} ${item.memberSince}`].filter(Boolean).join(" · ")}
+                        </span>
+                      )}
+                    </span>
+                  </figcaption>
+                </figure>
+              </li>
             ) : null,
           )}
-        </div>
+        </Carousel>
       </div>
     </section>
   );
 }
+
+const DISCIPLINE_LABELS: Record<string, string> = {
+  crossfit: "CrossFit",
+  "advanced-crossfit": "Advanced CrossFit",
+  hyrox: "Hyrox",
+  weightlifting: "Gewichtheffen",
+  strength: "Kracht",
+  "open-gym": "Open Gym",
+  "personal-training": "Personal training",
+  pregnancy: "Zwangerschap",
+  postpartum: "Postpartum",
+};
 
 function Pricing({ section, lang, settings, number }: SectionProps<"pricingSection">) {
   return (
