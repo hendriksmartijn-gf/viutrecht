@@ -1,0 +1,41 @@
+import { RichText } from "./RichText";
+
+type Faq = { _id: string; question?: string | null; answer?: readonly object[] | null } | null;
+
+type Props = {
+  faqs: Faq[] | null | undefined;
+  numbered?: boolean;
+  // Lesson pages: larger questions with the first answer open.
+  size?: "md" | "lg";
+  openFirst?: boolean;
+};
+
+// Native <details>: answers are in the HTML for crawlers and work without JavaScript.
+export function Faqs({ faqs, numbered, size = "md", openFirst }: Props) {
+  if (!faqs?.length) return null;
+  return (
+    <div data-stagger className="flex flex-col gap-2">
+      {faqs.map((faq, i) =>
+        faq ? (
+          <details key={faq._id} open={openFirst && i === 0} className="group rounded-[20px] border border-ink/7 bg-white">
+            <summary className="flex cursor-pointer items-center justify-between gap-1 px-[25px] py-[22px] leading-[normal]">
+              <span className="flex items-center gap-5">
+                {numbered && <span className="eyebrow text-ink/40">{String(i + 1).padStart(2, "0")}</span>}
+                <span className={`font-medium tracking-[-0.01em] group-open:font-semibold ${size === "lg" ? "text-[20px]" : "text-[18px]"}`}>
+                  {faq.question}
+                </span>
+              </span>
+              <span aria-hidden className="text-[24px] text-ink/60 group-open:text-ink">
+                <span className="group-open:hidden">+</span>
+                <span className="hidden group-open:inline">–</span>
+              </span>
+            </summary>
+            <div className={`-mt-2 px-[25px] pb-[22px] text-[16px] leading-[1.55] text-ink/70 ${numbered ? "md:pl-[61px]" : ""} [&_p]:max-w-[560px]`}>
+              <RichText value={faq.answer} />
+            </div>
+          </details>
+        ) : null,
+      )}
+    </div>
+  );
+}

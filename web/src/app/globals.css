@@ -1,0 +1,107 @@
+@import "tailwindcss";
+
+/* VI Utrecht design tokens (Figma: Webdesign / VI — Home — Desktop). */
+@theme inline {
+  --color-paper: #fcfbf8;
+  --color-ink: #0d0d0f;
+  --color-primary: #6a5ae0;
+  --color-lavender: #8b7ef8;
+  --color-lilac: #e7e2ff;
+  --color-lilac-strong: #bfb5ff;
+  --color-sun: #ffe27a;
+  --color-sand: #f3efe6;
+  /* Hover accent for buttons. */
+  --color-coral: #f86957;
+
+  --font-sans: var(--font-inter);
+  --font-serif: var(--font-instrument-serif);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+/* Small uppercase mono labels used throughout the design. */
+@utility eyebrow {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* The serif continuation inside display headings ("in Utrecht.", "Perfect."). */
+@utility display-emphasis {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@utility animate-marquee {
+  animation: marquee 40s linear infinite;
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+/* The header overlays the hero in white; on pages without a dark hero it turns dark.
+   Next keeps previously visited pages in the DOM, hidden with an inline display:none
+   (React Activity), so only a hero that is actually shown counts. */
+.site-header {
+  color: var(--color-ink);
+}
+body:has(main > [data-hero="dark"]:not([style*="display: none"])) .site-header {
+  color: white;
+}
+main:not(:has(> [data-hero="dark"]:not([style*="display: none"]))) {
+  padding-top: 80px;
+}
+
+details > summary {
+  list-style: none;
+}
+details > summary::-webkit-details-marker {
+  display: none;
+}
+
+/* Motion (see components/Motion.tsx). Until GSAP takes over (.motion-ready on <html>), hero
+   text waits hidden so it doesn't flash in, animate out and in again. Only when the visitor
+   allows motion; if GSAP never runs, the failsafe reveals the content after 3s. */
+@media (prefers-reduced-motion: no-preference) {
+  html:not(.motion-ready) [data-hero-item] {
+    opacity: 0;
+    animation: motion-failsafe 0s linear 3s forwards;
+  }
+}
+@keyframes motion-failsafe {
+  to {
+    opacity: 1;
+  }
+}
+
+/* Button emoji on hover (see components/Button.tsx). */
+@keyframes wiggle {
+  0%,
+  100% {
+    transform: rotate(0) scale(1);
+  }
+  30% {
+    transform: rotate(-14deg) scale(1.2);
+  }
+  65% {
+    transform: rotate(10deg) scale(1.15);
+  }
+}
+@utility animate-wiggle {
+  animation: wiggle 0.6s ease-in-out;
+}
