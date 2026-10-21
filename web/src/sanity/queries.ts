@@ -113,8 +113,9 @@ const SECTIONS = /* groq */ `sections[]{
   _type == "pricingSection" => {
     "items": select(
       count(memberships) > 0 => memberships[]->${MEMBERSHIP},
-      *[_type == "membership"] | order(orderRank asc)${MEMBERSHIP}
+      *[_type == "membership" && coalesce(membershipType, "subscription") == "subscription"] | order(orderRank asc)${MEMBERSHIP}
     ),
+    "punchCard": coalesce(punchCard->${MEMBERSHIP}, *[_type == "membership" && membershipType == "punchCard"] | order(orderRank asc)[0]${MEMBERSHIP}),
     footnote,
     secondaryCta${LINK},
     cta${LINK}

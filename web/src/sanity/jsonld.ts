@@ -52,6 +52,9 @@ function offer(m: Settings["memberships"][number], lang: Language) {
         referenceQuantity: { "@type": "QuantitativeValue", value: 1, unitCode: interval },
       },
     }),
+    // A punch card: the number of classes and how long it stays valid.
+    ...(m.membershipType === "punchCard" && m.credits?.amount && { eligibleQuantity: { "@type": "QuantitativeValue", value: m.credits.amount } }),
+    ...(m.membershipType === "punchCard" && m.validityMonths && { eligibleDuration: { "@type": "QuantitativeValue", value: m.validityMonths, unitCode: "MON" } }),
     availability: "https://schema.org/InStock",
     inLanguage: HREFLANG[lang],
   };

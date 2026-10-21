@@ -56,3 +56,36 @@ export function PlanCard({ membership: m, lang }: { membership: Membership; lang
     </li>
   );
 }
+
+// The punch card on purpose gets no card of its own: one quiet line under the plans, for whoever
+// does not want a subscription. Showing its price per class next to the plans' lets visitors
+// compare for themselves. Renders nothing until price, classes and the Sportbit link are filled in.
+export function PunchCardRow({ punchCard: m, lang }: { punchCard: Membership | null | undefined; lang: Language }) {
+  const t = UI[lang];
+  const classes = m?.credits?.amount;
+  if (!m?.price || !classes || !m.signupUrl) return null;
+  const locale = lang === "nl" ? "nl-NL" : "en-GB";
+  const eur = (n: number) =>
+    new Intl.NumberFormat(locale, { style: "currency", currency: "EUR", minimumFractionDigits: 2 }).format(n).replace(/\s/g, "");
+  const validity = m.validityMonths
+    ? lang === "nl"
+      ? `${m.validityMonths} ${m.validityMonths === 1 ? t.month : t.months} ${t.validFor}`
+      : `${t.validFor} ${m.validityMonths} ${m.validityMonths === 1 ? t.month : t.months}`
+    : null;
+  return (
+    <div data-reveal className="flex flex-col gap-4 border-t border-ink/12 px-1 pt-5 sm:flex-row sm:items-center sm:justify-between md:px-0 md:pt-6">
+      <div className="flex flex-col gap-1.5">
+        <p className="text-[15px] leading-[1.4] md:text-[16px]">
+          <span className="font-semibold">{t.noSubscription}</span>{" "}
+          <span className="text-ink/70">
+            {m.name} · {classes} {t.classUnit} · {eur(m.price)}
+          </span>
+        </p>
+        <p className="font-mono text-[10px] font-medium uppercase tracking-[0.03em] text-ink/55 md:text-[11px]">
+          {[`≈ ${eur(m.price / classes)} ${t.perClass}`, validity].filter(Boolean).join(" · ")}
+        </p>
+      </div>
+      <Button href={m.signupUrl} label={m.name} emoji={m.emoji ?? "🎟️"} variant="ghostDark" size="sm" />
+    </div>
+  );
+}

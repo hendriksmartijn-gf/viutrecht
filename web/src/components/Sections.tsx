@@ -9,7 +9,7 @@ import { Faqs } from "./Faqs";
 import { RichText } from "./RichText";
 import { SanityImage } from "./SanityImage";
 import { SectionHead } from "./SectionHead";
-import { PlanCard } from "./MembershipCard";
+import { PlanCard, PunchCardRow } from "./MembershipCard";
 import { Carousel, SnapList } from "./Carousel";
 
 export type Section = NonNullable<NonNullable<HOME_QUERY_RESULT>["sections"]>[number];
@@ -472,6 +472,7 @@ function Pricing({ section, lang, settings, number }: SectionProps<"pricingSecti
         <ul data-stagger className="grid items-start gap-4 lg:grid-cols-3">
           {section.items?.map((m) => (m ? <PlanCard key={m._id} membership={m} lang={lang} /> : null))}
         </ul>
+        <PunchCardRow punchCard={section.punchCard} lang={lang} />
         {(section.footnote || section.cta) && (
           <div className="flex flex-col justify-between gap-4 px-1 pt-2 md:flex-row md:items-center md:gap-6 md:px-0 md:pt-6">
             {section.footnote && <p className="text-[16px] font-semibold tracking-[-0.01em] md:text-[18px]">{section.footnote}</p>}

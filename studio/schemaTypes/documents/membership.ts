@@ -18,7 +18,7 @@ export const membership = defineType({
       options: {
         list: [
           {title: 'Abonnement', value: 'subscription'},
-          {title: 'Rittenkaart', value: 'punchCard'},
+          {title: 'Strippenkaart', value: 'punchCard'},
           {title: 'Drop-in', value: 'dropIn'},
         ],
         layout: 'radio',
@@ -63,7 +63,7 @@ export const membership = defineType({
         }),
       ],
     }),
-    defineField({name: 'validityMonths', title: 'Geldigheid (maanden)', type: 'number', description: 'Voor rittenkaarten.', hidden: ({document}) => document?.membershipType !== 'punchCard'}),
+    defineField({name: 'validityMonths', title: 'Geldigheid (maanden)', type: 'number', description: 'Hoe lang de strippenkaart na aankoop geldig is.', hidden: ({document}) => document?.membershipType !== 'punchCard'}),
     defineField({name: 'tagline', title: 'Korte omschrijving', type: 'internationalizedArrayString', description: 'Bijv. "Blijf on track met 9 sessies per maand".'}),
     defineField({
       name: 'access',

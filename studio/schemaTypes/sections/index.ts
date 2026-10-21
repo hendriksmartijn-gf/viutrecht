@@ -259,8 +259,24 @@ export const pricingSection = defineType({
       title: 'Lidmaatschappen',
       type: 'array',
       description: 'Laat leeg om alle abonnementen te tonen.',
-      of: [defineArrayMember({type: 'reference', to: [{type: 'membership'}]})],
+      of: [
+        defineArrayMember({
+          type: 'reference',
+          to: [{type: 'membership'}],
+          options: {filter: 'coalesce(membershipType, "subscription") == "subscription"'},
+        }),
+      ],
       validation: (rule) => rule.unique(),
+    }),
+    // Deliberately not a card: shown as one quiet line under the plans, so it is there for
+    // whoever needs it without competing with the subscriptions.
+    defineField({
+      name: 'punchCard',
+      title: 'Strippenkaart',
+      type: 'reference',
+      to: [{type: 'membership'}],
+      options: {filter: 'membershipType == "punchCard"'},
+      description: 'Staat als smalle regel onder de abonnementen. Laat leeg om de eerste gepubliceerde strippenkaart te tonen.',
     }),
     defineField({name: 'footnote', title: 'Afsluitende zin', type: 'string', description: 'Bijv. "Nog twijfels? Je eerste week is gratis."'}),
     defineField({name: 'secondaryCta', title: 'Tekstlink', type: 'link'}),
