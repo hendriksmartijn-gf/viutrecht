@@ -28,6 +28,11 @@ const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 // Lesson template (Figma: VI — Olympic Weightlifting — Desktop). Every block is optional,
 // so lessons with less content still read as a complete page.
+const ESSENTIAL_COLUMNS: Record<number, string> = {
+  3: "md:grid-cols-3",
+  4: "md:grid-cols-2 xl:grid-cols-4",
+};
+
 export function DisciplinePage({ doc, lang, settings, cta, overviewPath }: Props) {
   const t = UI[lang];
   const trialUrl = settings?.trialUrl;
@@ -122,14 +127,17 @@ export function DisciplinePage({ doc, lang, settings, cta, overviewPath }: Props
               </div>
             )}
             {doc.essentials.items?.length ? (
-              <ol data-stagger className={`grid gap-4 ${doc.essentials.items.length > 2 ? "md:grid-cols-2 xl:grid-cols-4" : "md:grid-cols-2"}`}>
+              // Columns follow the number of items, so three never leave an empty fourth column.
+              <ol data-stagger className={`grid gap-4 ${ESSENTIAL_COLUMNS[doc.essentials.items.length] ?? "md:grid-cols-2"}`}>
                 {doc.essentials.items.map((item, i) => (
-                  <li key={item._key} className="flex gap-7 rounded-[28px] border border-ink/7 bg-white p-7">
-                    <span aria-hidden className="display-emphasis shrink-0 text-[88px] leading-[0.9] text-primary">
+                  // Phones: number beside the text. From md the cards share a row and get narrow,
+                  // so the number goes on top and the text keeps the full card width.
+                  <li key={item._key} className="flex gap-4 rounded-[24px] border border-ink/7 bg-white p-5 md:flex-col md:gap-5 md:rounded-[28px] md:p-7">
+                    <span aria-hidden className="display-emphasis shrink-0 text-[56px] leading-[0.9] text-primary md:text-[88px]">
                       {String(i + 1).padStart(2, "0")}
                     </span>
-                    <div className="flex flex-col gap-2.5">
-                      <h3 className="text-[clamp(26px,2.5vw,36px)] font-bold tracking-[-0.03em]">{item.title}</h3>
+                    <div className="flex min-w-0 flex-col gap-2.5">
+                      <h3 className="text-[clamp(24px,2.5vw,36px)] font-bold leading-[1.05] tracking-[-0.03em] hyphens-auto [overflow-wrap:anywhere]">{item.title}</h3>
                       {item.description && <p className="max-w-[380px] text-[16px] leading-[1.5] text-ink/70">{item.description}</p>}
                     </div>
                   </li>
