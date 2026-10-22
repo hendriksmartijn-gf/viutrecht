@@ -14,7 +14,8 @@ type Props = {
 // NL · EN. The other language links to the same page when it has a translation, else to that
 // language's homepage.
 export function LanguageSwitch({ lang, counterparts, className = "" }: Props) {
-  const pathname = usePathname().replace(/\/$/, "") || "/";
+  // On the server the Dutch pages carry their internal /nl prefix (see proxy.ts); visitors never see it.
+  const pathname = usePathname().replace(/^\/nl(?=\/|$)/, "").replace(/\/$/, "") || "/";
   const other = counterparts[pathname] ?? (lang === "nl" ? "/en" : "/");
   return (
     <p className={`font-mono font-medium tracking-[0.03em] ${className}`}>
