@@ -49,8 +49,9 @@ export function SiteHeader({ lang, navigation, settings }: Props) {
       </Link>
       {navigation?.header?.length || navigation?.classesMenu?.label ? (
         // No backdrop filter here: it would become the containing block of the mega menu panel.
-        <nav aria-label={t.mainMenu} className="hidden px-7 py-3 lg:block">
-          <ul className="flex gap-9 text-[15px] font-medium">
+        // From xl only: with six items the menu does not fit between logo and buttons below 1280px.
+        <nav aria-label={t.mainMenu} className="hidden py-3 xl:block">
+          <ul className="flex gap-6 text-[15px] font-medium 2xl:gap-8">
             {navigation.classesMenu?.label && <MegaMenu menu={navigation.classesMenu} lang={lang} settings={settings} />}
             {(navigation.header ?? []).map((link, i) => (
               <li key={i}>

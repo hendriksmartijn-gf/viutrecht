@@ -12,6 +12,7 @@ import { SectionHead } from "./SectionHead";
 import { PlanCard, PunchCardRow } from "./MembershipCard";
 import { Carousel, SnapList } from "./Carousel";
 import { NewsOverview } from "./NewsOverview";
+import { SportbitSchedule } from "./SportbitSchedule";
 
 export type Section = NonNullable<NonNullable<HOME_QUERY_RESULT>["sections"]>[number];
 type Settings = SETTINGS_QUERY_RESULT;
@@ -616,17 +617,13 @@ export function CtaPanel({ heading, intro, link, note, trialUrl }: CtaPanelProps
   );
 }
 
-// The live schedule lives in Sportbit; until it is embedded this links to it.
-function Schedule({ section, lang, settings, number }: SectionProps<"scheduleSection">) {
-  if (!settings?.scheduleUrl) return null;
+// The live schedule from Sportbit (the rooster page). The heading is optional: on the rooster
+// page the intro above already says what this is.
+function Schedule({ section, number }: SectionProps<"scheduleSection">) {
   return (
-    <section className="bg-white">
-      <div className={`${CONTAINER} flex flex-wrap items-center justify-between gap-6 py-10`}>
-        <SectionHead heading={section.heading} number={number} size="md" />
-        <a href={settings.scheduleUrl} className="text-[15px] font-semibold text-primary">
-          {UI[lang].fullSchedule} →
-        </a>
-      </div>
+    <section className={`${WIDE} flex flex-col gap-10 pb-20 md:pb-28`}>
+      {section.heading?.text && <SectionHead heading={section.heading} number={number} size="md" />}
+      <SportbitSchedule />
     </section>
   );
 }

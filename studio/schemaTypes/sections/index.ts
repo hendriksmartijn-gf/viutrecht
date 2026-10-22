@@ -14,7 +14,7 @@ import {DocumentTextIcon} from '@sanity/icons/DocumentText'
 import {StarIcon} from '@sanity/icons/Star'
 import {BlockquoteIcon} from '@sanity/icons/Blockquote'
 import {TextIcon} from '@sanity/icons/Text'
-import {DISCIPLINES, sameLanguage} from '../../lib/fields'
+import {sameLanguage} from '../../lib/fields'
 
 const heading = defineField({name: 'heading', title: 'Kop', type: 'sectionHeading'})
 const intro = defineField({name: 'intro', title: 'Intro', type: 'text', rows: 3})
@@ -213,17 +213,8 @@ export const scheduleSection = defineType({
   title: 'Rooster (Sportbit)',
   type: 'object',
   icon: CalendarIcon,
-  description: 'Het rooster komt live uit Sportbit en wordt niet in Sanity beheerd.',
-  fields: [
-    heading,
-    defineField({
-      name: 'discipline',
-      title: 'Filter op les',
-      type: 'string',
-      options: {list: DISCIPLINES},
-      description: 'Laat leeg voor alle lessen.',
-    }),
-  ],
+  description: 'Het live rooster van Sportbit, met boeken. Het rooster zelf wordt niet in Sanity beheerd.',
+  fields: [heading],
   preview: headingPreview('Rooster'),
 })
 

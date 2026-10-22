@@ -112,7 +112,6 @@ const SECTIONS = /* groq */ `sections[]{
     )
   },
   _type == "stepsSection" => {steps[]{_key, title, description}, cta${LINK}},
-  _type == "scheduleSection" => {discipline},
   _type == "testimonialsSection" => {showRating, "items": testimonials[]->${TESTIMONIAL}},
   _type == "pricingSection" => {
     "items": select(

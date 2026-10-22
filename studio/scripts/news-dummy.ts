@@ -157,7 +157,8 @@ const posts = [
 
 async function main() {
   const tx = client.transaction()
-  for (const {slug, ...post} of posts) {
+  // The articles differ in which optional fields they set, so they are typed loosely here.
+  for (const {slug, ...post} of posts as {slug: string; [field: string]: unknown}[]) {
     tx.createOrReplace({_id: `post-${slug}-nl`, _type: 'post', language: 'nl', slug: {_type: 'slug', current: slug}, ...post})
   }
   await tx.commit()

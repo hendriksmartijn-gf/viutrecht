@@ -4,7 +4,7 @@ import { useEffect, useId, useState } from "react";
 
 type Props = { label: string; openLabel: string; closeLabel: string; children: React.ReactNode };
 
-// The menu button below `lg` and the full-screen panel it opens. The links themselves are
+// The menu button below `xl` and the full-screen panel it opens. The links themselves are
 // server-rendered (children); this only adds the open state, Escape, scroll lock and closing
 // after a link is followed.
 export function MobileMenu({ label, openLabel, closeLabel, children }: Props) {
@@ -31,7 +31,7 @@ export function MobileMenu({ label, openLabel, closeLabel, children }: Props) {
         aria-controls={id}
         aria-label={openLabel}
         onClick={() => setOpen(true)}
-        className="flex size-11 flex-col items-center justify-center gap-1 rounded-full border border-current/28 bg-white/14 backdrop-blur-md transition-colors hover:bg-coral hover:text-ink lg:hidden"
+        className="flex size-11 flex-col items-center justify-center gap-1 rounded-full border border-current/28 bg-white/14 backdrop-blur-md transition-colors hover:bg-coral hover:text-ink xl:hidden"
       >
         <span aria-hidden className="h-[1.5px] w-4 bg-current" />
         <span aria-hidden className="h-[1.5px] w-4 bg-current" />
@@ -45,7 +45,7 @@ export function MobileMenu({ label, openLabel, closeLabel, children }: Props) {
         hidden={!open}
         // Following a link (soft navigation) keeps this component mounted, so close it here.
         onClick={(event) => (event.target as Element).closest("a") && setOpen(false)}
-        className="fixed inset-0 z-50 overflow-y-auto bg-paper text-ink lg:hidden"
+        className="fixed inset-0 z-50 overflow-y-auto bg-paper text-ink xl:hidden"
       >
         <button
           type="button"
