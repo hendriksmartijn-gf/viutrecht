@@ -5,8 +5,8 @@ import "../globals.css";
 import { JsonLd } from "@/components/JsonLd";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader, TopBar } from "@/components/SiteHeader";
-import { getNavigation, getSettings } from "@/sanity/fetch";
-import { HREFLANG, INDEXABLE, isLanguage, LANGUAGES, SITE_URL } from "@/sanity/i18n";
+import { getNavigation, getRoutes, getSettings } from "@/sanity/fetch";
+import { HREFLANG, INDEXABLE, isLanguage, LANGUAGES, pathFor, SITE_URL } from "@/sanity/i18n";
 import { organizationJsonLd } from "@/sanity/jsonld";
 
 const inter = Inter({ variable: "--font-inter", subsets: ["latin"] });
@@ -33,8 +33,15 @@ export async function generateMetadata({ params }: LayoutProps<"/[lang]">): Prom
 export default async function LangLayout({ children, params }: LayoutProps<"/[lang]">) {
   const { lang } = await params;
   if (!isLanguage(lang)) notFound();
-  const [settings, navigation] = await Promise.all([getSettings(lang), getNavigation(lang)]);
+  const [settings, navigation, routes] = await Promise.all([getSettings(lang), getNavigation(lang), getRoutes()]);
   const chrome = { lang, navigation, settings };
+  // For the language switch: each page of this language -> the same page in the other one.
+  const counterparts: Record<string, string> = { "/": "/en", "/en": "/" };
+  for (const route of routes) {
+    if (route.language !== lang) continue;
+    const other = route.translations?.find((t) => t?.language && t.language !== lang);
+    if (other) counterparts[pathFor(route._type, route.language, route.slug)] = pathFor(other._type, other.language, other.slug);
+  }
 
   return (
     <html lang={HREFLANG[lang]} className={`${inter.variable} ${instrumentSerif.variable} ${geistMono.variable} antialiased`}>
@@ -42,7 +49,7 @@ export default async function LangLayout({ children, params }: LayoutProps<"/[la
         <JsonLd data={organizationJsonLd(settings, lang)} />
         <TopBar {...chrome} />
         <div className="relative flex flex-1 flex-col">
-          <SiteHeader {...chrome} />
+          <SiteHeader {...chrome} counterparts={counterparts} />
           <main className="flex-1">{children}</main>
         </div>
         <SiteFooter {...chrome} />

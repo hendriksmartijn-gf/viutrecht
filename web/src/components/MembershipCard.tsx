@@ -68,6 +68,8 @@ export function PunchCardRow({ punchCard: m, lang }: { punchCard: Membership | n
   const t = UI[lang];
   const classes = m?.credits?.amount;
   if (!m?.price || !classes || !m.signupUrl) return null;
+  // The membership name is not translated in Sanity; in English the punch card gets its English name.
+  const name = lang === "nl" ? m.name : t.punchCard;
   const locale = lang === "nl" ? "nl-NL" : "en-GB";
   const eur = (n: number) =>
     new Intl.NumberFormat(locale, { style: "currency", currency: "EUR", minimumFractionDigits: 2 }).format(n).replace(/\s/g, "");
@@ -82,14 +84,14 @@ export function PunchCardRow({ punchCard: m, lang }: { punchCard: Membership | n
         <p className="text-[15px] leading-[1.4] md:text-[16px]">
           <span className="font-semibold">{t.noSubscription}</span>{" "}
           <span className="text-ink/70">
-            {m.name} · {classes} {t.classUnit} · {eur(m.price)}
+            {name} · {classes} {t.classUnit} · {eur(m.price)}
           </span>
         </p>
         <p className="font-mono text-[10px] font-medium uppercase tracking-[0.03em] text-ink/55 md:text-[11px]">
           {[`≈ ${eur(m.price / classes)} ${t.perClass}`, validity].filter(Boolean).join(" · ")}
         </p>
       </div>
-      <Button href={m.signupUrl} label={m.name} emoji={m.emoji ?? "🎟️"} variant="ghostDark" size="sm" />
+      <Button href={m.signupUrl} label={name} emoji={m.emoji ?? "🎟️"} variant="ghostDark" size="sm" />
     </div>
   );
 }

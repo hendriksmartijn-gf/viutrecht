@@ -438,7 +438,7 @@ function Testimonials({ section, lang, settings, number }: SectionProps<"testimo
                       <span className="text-[16px] font-semibold">{item.authorName}</span>
                       {item.memberSince && (
                         <span className="font-mono text-[11px] font-medium uppercase tracking-[0.03em] text-ink/55">
-                          {[item.discipline && DISCIPLINE_LABELS[item.discipline], `${t.memberSince} ${item.memberSince}`].filter(Boolean).join(" · ")}
+                          {[item.discipline && DISCIPLINE_LABELS[lang][item.discipline], `${t.memberSince} ${item.memberSince}`].filter(Boolean).join(" · ")}
                         </span>
                       )}
                     </span>
@@ -453,17 +453,31 @@ function Testimonials({ section, lang, settings, number }: SectionProps<"testimo
   );
 }
 
-const DISCIPLINE_LABELS: Record<string, string> = {
-  crossfit: "CrossFit",
-  "advanced-crossfit": "Advanced CrossFit",
-  gymnastics: "Gymnastics",
-  hyrox: "Hyrox",
-  weightlifting: "Gewichtheffen",
-  strength: "Kracht",
-  "open-gym": "Open Gym",
-  "personal-training": "Personal training",
-  pregnancy: "Zwangerschap",
-  postpartum: "Postpartum",
+const DISCIPLINE_LABELS: Record<Language, Record<string, string>> = {
+  nl: {
+    crossfit: "CrossFit",
+    "advanced-crossfit": "Advanced CrossFit",
+    gymnastics: "Gymnastics",
+    hyrox: "Hyrox",
+    weightlifting: "Gewichtheffen",
+    strength: "Kracht",
+    "open-gym": "Open Gym",
+    "personal-training": "Personal training",
+    pregnancy: "Zwangerschap",
+    postpartum: "Postpartum",
+  },
+  en: {
+    crossfit: "CrossFit",
+    "advanced-crossfit": "Advanced CrossFit",
+    gymnastics: "Gymnastics",
+    hyrox: "Hyrox",
+    weightlifting: "Weightlifting",
+    strength: "Strength",
+    "open-gym": "Open Gym",
+    "personal-training": "Personal training",
+    pregnancy: "Pregnancy",
+    postpartum: "Postpartum",
+  },
 };
 
 function Pricing({ section, lang, settings, number }: SectionProps<"pricingSection">) {

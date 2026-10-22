@@ -4,11 +4,18 @@ import type { NAVIGATION_QUERY_RESULT, SETTINGS_QUERY_RESULT } from "../../sanit
 import { pathFor, UI, type Language } from "@/sanity/i18n";
 import { Button } from "./Button";
 import { CtaLink } from "./CtaLink";
+import { LanguageSwitch } from "./LanguageSwitch";
 import { MegaMenu, QuickLinks } from "./MegaMenu";
 import { MobileMenu } from "./MobileMenu";
 import { StickyHeader } from "./StickyHeader";
 
-type Props = { lang: Language; navigation: NAVIGATION_QUERY_RESULT; settings: SETTINGS_QUERY_RESULT };
+type Props = {
+  lang: Language;
+  navigation: NAVIGATION_QUERY_RESULT;
+  settings: SETTINGS_QUERY_RESULT;
+  // For the language switch: every page path -> the same page in the other language.
+  counterparts?: Record<string, string>;
+};
 
 // The whole bar links to the trial week. Hover: it turns coral, the gift wiggles in and the
 // arrow nudges forward.
@@ -35,7 +42,7 @@ export function TopBar({ lang, navigation, settings }: Props) {
 // solid with the mega menu open; see .site-header in globals.css. From xl a three-column grid
 // keeps the menu centred on the page; below that there is no room, so the menu sits between
 // logo and actions.
-export function SiteHeader({ lang, navigation, settings }: Props) {
+export function SiteHeader({ lang, navigation, settings, counterparts = {} }: Props) {
   const t = UI[lang];
   const trialUrl = settings?.trialUrl;
   return (
@@ -62,7 +69,7 @@ export function SiteHeader({ lang, navigation, settings }: Props) {
         </nav>
       ) : null}
       <div className="flex items-center gap-3.5 justify-self-end md:gap-5 xl:pr-20">
-        <LanguageSwitch lang={lang} className="text-[12px] md:text-[13px]" />
+        <LanguageSwitch lang={lang} counterparts={counterparts} className="text-[12px] md:text-[13px]" />
         {settings?.loginUrl && (
           <a href={settings.loginUrl} className="hidden text-[15px] font-medium opacity-85 hover:opacity-100 md:block">
             {t.login}
@@ -72,32 +79,16 @@ export function SiteHeader({ lang, navigation, settings }: Props) {
           <Button link={navigation?.headerCta} trialUrl={trialUrl} />
         </span>
         <MobileMenu label={t.mainMenu} openLabel={t.openMenu} closeLabel={t.closeMenu}>
-          <MobileMenuPanel lang={lang} navigation={navigation} settings={settings} />
+          <MobileMenuPanel lang={lang} navigation={navigation} settings={settings} counterparts={counterparts} />
         </MobileMenu>
       </div>
     </StickyHeader>
   );
 }
 
-function LanguageSwitch({ lang, className = "" }: { lang: Language; className?: string }) {
-  return (
-    <p className={`font-mono font-medium tracking-[0.03em] ${className}`}>
-      {lang === "nl" ? (
-        <>
-          <span>NL</span> · <Link href="/en" hrefLang="en" className="opacity-70 hover:opacity-100">EN</Link>
-        </>
-      ) : (
-        <>
-          <Link href="/" hrefLang="nl" className="opacity-70 hover:opacity-100">NL</Link> · <span>EN</span>
-        </>
-      )}
-    </p>
-  );
-}
-
 // Contents of the phone menu: the few main pages as big links, every lesson, the quick links from
 // the mega menu, and the trial CTA at the bottom.
-function MobileMenuPanel({ lang, navigation, settings }: Props) {
+function MobileMenuPanel({ lang, navigation, settings, counterparts = {} }: Props) {
   const t = UI[lang];
   const trialUrl = settings?.trialUrl;
   const classes = navigation?.classesMenu;
@@ -150,7 +141,7 @@ function MobileMenuPanel({ lang, navigation, settings }: Props) {
       <div className="mt-auto flex flex-col gap-5">
         <Button link={navigation?.headerCta} trialUrl={trialUrl} full />
         <div className="flex items-center justify-between">
-          <LanguageSwitch lang={lang} className="text-[13px]" />
+          <LanguageSwitch lang={lang} counterparts={counterparts} className="text-[13px]" />
           {settings?.loginUrl && (
             <a href={settings.loginUrl} className="text-[15px] font-medium text-ink/75 hover:text-ink">
               {t.login}
