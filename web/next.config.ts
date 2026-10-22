@@ -24,6 +24,9 @@ const nextConfig: NextConfig = {
   // afterwards (a soft 404). Without it, notFound() returns a real 404 status.
   partialPrefetching: false,
   images: {
+    // Sanity's CDN resizes the photos (src/sanity/image-loader.ts); Vercel only serves the page.
+    loader: "custom",
+    loaderFile: "./src/sanity/image-loader.ts",
     remotePatterns: [{ protocol: "https", hostname: "cdn.sanity.io" }],
   },
   redirects: sanityRedirects,
